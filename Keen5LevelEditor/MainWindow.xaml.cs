@@ -40,23 +40,19 @@ namespace Keen5LevelEditor {
             tileHeight = 32;
         }
 
-        private void loadFile_Click(object sender, RoutedEventArgs e) {
-            System.Windows.Forms.OpenFileDialog open_dialog = new System.Windows.Forms.OpenFileDialog();
-            System.Windows.Forms.DialogResult result = open_dialog.ShowDialog();
-
-            if (result != System.Windows.Forms.DialogResult.OK)
-                return;
-
-            loadFileLabel.Content = open_dialog.FileName;
-
+        private void setImageSource(string filename) {
             src = new BitmapImage();
             src.BeginInit();
-            src.UriSource = new Uri(open_dialog.FileName);
+            src.UriSource = new Uri(filename);
             src.CacheOption = BitmapCacheOption.OnLoad;
             src.EndInit();
 
-            Console.WriteLine("File opened.");
+            loadImageSrcLabel.Content = filename;
 
+            Console.WriteLine("File opened.");
+        }
+
+        private void createTables() {
             srcTiles = new List<Tile>();
 
             // Create a table of tiles to choose from
@@ -90,8 +86,8 @@ namespace Keen5LevelEditor {
 
             // Create a table of tiles for the level editing
             try {
-                levelWidthInTiles = Convert.ToInt32(textboxLevelWidth.ToString());
-                levelHeightInTiles = Convert.ToInt32(textboxLevelHeight.ToString());
+                levelWidthInTiles = Convert.ToInt32(textboxLevelWidth.Text);
+                levelHeightInTiles = Convert.ToInt32(textboxLevelHeight.Text);
             } catch (FormatException) {
                 levelWidthInTiles = 16;
                 levelHeightInTiles = 32;
@@ -109,6 +105,7 @@ namespace Keen5LevelEditor {
                     string name = "levelTile" +  tileCount.ToString();
                     Button button = new Button() { Width = tileWidth, Height = tileHeight, Name = name };
                     button.Click += tilePlacer_Click;
+                    this.RegisterName(name, button);
 
                     // Add button to stackpanel
                     stackPanel.Children.Add(button);
@@ -119,6 +116,17 @@ namespace Keen5LevelEditor {
 
                 Body.Children.Add(stackPanel);
             }
+        }
+
+        private void loadImageSrc_Click(object sender, RoutedEventArgs e) {
+            System.Windows.Forms.OpenFileDialog open_dialog = new System.Windows.Forms.OpenFileDialog();
+            System.Windows.Forms.DialogResult result = open_dialog.ShowDialog();
+
+            if (result != System.Windows.Forms.DialogResult.OK)
+                return;
+
+            setImageSource(open_dialog.FileName);
+            createTables();
         }
 
         private void tileSelector_Click(object sender, RoutedEventArgs e) {
@@ -174,12 +182,18 @@ namespace Keen5LevelEditor {
 
             if (placedTiles == null || placedTiles.Count == 0) return;
 
+            // Calculate number of non-blank tiles
+            int tileCount = placedTiles.Where(t => t != null).Count();
+            if (tileCount < 1) return;
+
             using (StreamWriter sw = new StreamWriter(savePath)) {
                 // File format:
-                // First line is # tiles wide and # tiles tall
+                // First line is # tiles wide, # tiles tall, # tiles (non-blank) total
+                // Second line is src file name
                 // After that, one line per tile
                 // Each line is src x coord, src y coord, or -1 to indicate blank tile
-                sw.WriteLine(levelWidthInTiles.ToString() + " " + levelHeightInTiles.ToString());
+                sw.WriteLine(levelWidthInTiles.ToString() + " " + levelHeightInTiles.ToString() + " " + tileCount.ToString());
+                sw.WriteLine(loadImageSrcLabel.Content);
 
                 foreach (Tile tile in placedTiles) {
                     if (tile == null) {
@@ -190,6 +204,58 @@ namespace Keen5LevelEditor {
                     sw.WriteLine((tileWidth * tile.x).ToString() + " " + (tileHeight * tile.y).ToString());
                 }
             }
+
+            Console.WriteLine("File saved.");
+        }
+
+        private void loadSave_Click(object sender, RoutedEventArgs e) {
+            System.Windows.Forms.OpenFileDialog open_dialog = new System.Windows.Forms.OpenFileDialog();
+            System.Windows.Forms.DialogResult result = open_dialog.ShowDialog();
+
+            if (result != System.Windows.Forms.DialogResult.OK)
+                return;
+
+            string line;
+
+            using (StreamReader sr = new StreamReader(open_dialog.FileName)) {
+                // Exception: Get first two lines differently
+                // Line 1
+                line = sr.ReadLine();
+                string[] line1Values = line.Split(' ');
+                levelWidthInTiles = Convert.ToInt32(line1Values[0]);
+                levelHeightInTiles = Convert.ToInt32(line1Values[1]);
+
+                // Line 2
+                line = sr.ReadLine();
+                Console.WriteLine(line);
+                setImageSource(line);
+                createTables();
+
+                int count = 0;
+
+                while ((line = sr.ReadLine()) != null) {
+                    string[] splitLine = line.Split(' ');
+
+                    if (splitLine[0] == "-1") {
+                        count++;
+                        continue;
+                    }
+
+                    for (int i = 0; i < srcTiles.Count(); i++) {
+                        if (srcTiles[i].x * tileWidth == Convert.ToInt32(splitLine[0]) && srcTiles[i].y * tileHeight == Convert.ToInt32(splitLine[1])) {
+                            Button button = (Button)FindName("levelTile" + count);
+                            button.Background = new ImageBrush(srcTiles[i].image.Source);
+                            placedTiles[count] = srcTiles[i];
+                        }
+
+                        Console.WriteLine(srcTiles[i].x + "," + srcTiles[i].y);
+                    }
+
+                    count++;
+                }
+            }
+
+            Console.WriteLine("File loaded.");
         }
     }
 }

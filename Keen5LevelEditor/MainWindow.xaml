@@ -11,8 +11,9 @@
                     <TextBox Name="textboxTileHeight" Width="40" ToolTip="Tile Height"></TextBox>
                     <TextBox Name="textboxLevelWidth" Width="40" ToolTip="Level Width"></TextBox>
                     <TextBox Name="textboxLevelHeight" Width="40" ToolTip="Level Height"></TextBox>
-                    <Button Name="loadFile" Click="loadFile_Click">Load File</Button>
-                    <Label Name="loadFileLabel">Filename</Label>
+                    <Button Name="loadSave" Click="loadSave_Click">Load Saved File</Button>
+                    <Button Name="loadImageSrc" Click="loadImageSrc_Click">Load Image Source</Button>
+                    <Label Name="loadImageSrcLabel">Filename</Label>
                 </StackPanel>
             </StackPanel> 
             <StackPanel DockPanel.Dock="Left" Name="Body" HorizontalAlignment="Center">
