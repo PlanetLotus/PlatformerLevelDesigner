@@ -7,8 +7,8 @@
             <StackPanel DockPanel.Dock="Top" Name="Header">
                 <StackPanel Orientation="Horizontal">
                     <Button Name="saveFile" Click="saveFile_Click">Save</Button>
-                    <TextBox Name="textboxTileWidth" Width="40" ToolTip="Tile Width"></TextBox>
-                    <TextBox Name="textboxTileHeight" Width="40" ToolTip="Tile Height"></TextBox>
+                    <TextBox Name="textboxTileWidth" Width="40" Text="32" ToolTip="Tile Width"></TextBox>
+                    <TextBox Name="textboxTileHeight" Width="40" Text="32" ToolTip="Tile Height"></TextBox>
                     <TextBox Name="textboxLevelWidth" Width="40" ToolTip="Level Width"></TextBox>
                     <TextBox Name="textboxLevelHeight" Width="40" ToolTip="Level Height"></TextBox>
                     <Button Name="loadSave" Click="loadSave_Click">Load Saved File</Button>

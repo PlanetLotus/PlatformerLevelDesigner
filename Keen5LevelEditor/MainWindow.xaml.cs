@@ -35,9 +35,6 @@ namespace Keen5LevelEditor {
 
         public MainWindow() {
             InitializeComponent();
-
-            tileWidth = 32;
-            tileHeight = 32;
         }
 
         private void setImageSource(string filename) {
@@ -54,6 +51,9 @@ namespace Keen5LevelEditor {
 
         private void createTables() {
             srcTiles = new List<Tile>();
+
+            tileWidth = Convert.ToInt32(textboxTileWidth.Text);
+            tileHeight = Convert.ToInt32(textboxTileHeight.Text);
 
             // Create a table of tiles to choose from
             int tilesWide = src.PixelWidth / tileWidth;
@@ -224,6 +224,9 @@ namespace Keen5LevelEditor {
                 string[] line1Values = line.Split(' ');
                 levelWidthInTiles = Convert.ToInt32(line1Values[0]);
                 levelHeightInTiles = Convert.ToInt32(line1Values[1]);
+
+                textboxLevelWidth.Text = levelWidthInTiles.ToString();
+                textboxLevelHeight.Text = levelHeightInTiles.ToString();
 
                 // Line 2
                 line = sr.ReadLine();
