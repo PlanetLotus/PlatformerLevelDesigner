@@ -130,6 +130,7 @@ namespace Keen5LevelEditor {
             createTables();
         }
 
+        // TODO: Load collision details of selected tile
         private void tileSelector_Click(object sender, RoutedEventArgs e) {
             Button tileSelectorButton = (Button)sender;
 
@@ -170,6 +171,7 @@ namespace Keen5LevelEditor {
             }
         }
 
+        // TODO: Save collision details of tile
         private void saveFile_Click(object sender, RoutedEventArgs e) {
             if (savePath == null) {
                 System.Windows.Forms.SaveFileDialog saveDialog = new System.Windows.Forms.SaveFileDialog();
@@ -209,6 +211,7 @@ namespace Keen5LevelEditor {
             Console.WriteLine("File saved.");
         }
 
+        // TODO: Load collision details of tile
         private void loadSave_Click(object sender, RoutedEventArgs e) {
             System.Windows.Forms.OpenFileDialog open_dialog = new System.Windows.Forms.OpenFileDialog();
             System.Windows.Forms.DialogResult result = open_dialog.ShowDialog();
