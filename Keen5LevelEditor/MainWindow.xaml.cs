@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -262,26 +263,50 @@ namespace Keen5LevelEditor {
         }
 
         private void collisionButton_Click(object sender, RoutedEventArgs e) {
+            if (selectedTile == null) return;
 
+            ToggleButton clicked = (ToggleButton)sender;
+
+            switch (clicked.Name) {
+                case "buttonTopCollision":
+                    ToggleTopCollision();
+                    break;
+                case "buttonRightCollision":
+                    // Toggle right collision
+                    break;
+                case "buttonBottomCollision":
+                    // Toggle bottom collision
+                    break;
+                case "buttonLeftCollision":
+                    // Toggle left collision
+                    break;
+            }
         }
 
         private void Window_KeyUp(object sender, KeyEventArgs e) {
-            if (selectedTile != null) {
-                switch (e.Key) {
-                    case Key.NumPad8:
-                        // Toggle top collision
-                        break;
-                    case Key.NumPad6:
-                        // Toggle right collision
-                        break;
-                    case Key.NumPad2:
-                        // Toggle bottom collision
-                        break;
-                    case Key.NumPad4:
-                        // Toggle left collision
-                        break;
-                }
+            if (selectedTile == null) return;
+
+            switch (e.Key) {
+                case Key.NumPad8:
+                    ToggleTopCollision();
+                    break;
+                case Key.NumPad6:
+                    // Toggle right collision
+                    break;
+                case Key.NumPad2:
+                    // Toggle bottom collision
+                    break;
+                case Key.NumPad4:
+                    // Toggle left collision
+                    break;
             }
+        }
+
+        private void ToggleTopCollision() {
+            if (selectedTile == null) return;
+
+            selectedTile.topCollision = selectedTile.topCollision == true ? false : true;
+            buttonTopCollision.IsChecked = selectedTile.topCollision == true ? true : false;
         }
     }
 }

@@ -3,7 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Keen5LevelEditor" Height="600" Width="800"
         SizeToContent="Width"
-        KeyUp="Window_KeyUp">
+        KeyUp="Window_KeyUp"
+        >
+
     <ScrollViewer>
         <DockPanel>
             <StackPanel DockPanel.Dock="Top" Name="Header">
@@ -23,10 +25,10 @@
             <StackPanel DockPanel.Dock="Left" Name="Body" HorizontalAlignment="Center" Margin="10,0">
             </StackPanel>
             <StackPanel DockPanel.Dock="Left" Name="TileCollision" HorizontalAlignment="Center" Margin="10,0">
-                <Button Name="buttonTopCollision" Click="collisionButton_Click">Top Collision</Button>
-                <Button Name="buttonRightCollision" Click="collisionButton_Click">Right Collision</Button>
-                <Button Name="buttonBottomCollision" Click="collisionButton_Click">Bottom Collision</Button>
-                <Button Name="buttonLeftCollision" Click="collisionButton_Click">Left Collision</Button>
+                <ToggleButton Name="buttonTopCollision" Click="collisionButton_Click">Top Collision</ToggleButton>
+                <ToggleButton Name="buttonRightCollision" Click="collisionButton_Click">Right Collision</ToggleButton>
+                <ToggleButton Name="buttonBottomCollision" Click="collisionButton_Click">Bottom Collision</ToggleButton>
+                <ToggleButton Name="buttonLeftCollision" Click="collisionButton_Click">Left Collision</ToggleButton>
             </StackPanel>
         </DockPanel>
     </ScrollViewer>
