@@ -272,13 +272,13 @@ namespace Keen5LevelEditor {
                     ToggleTopCollision();
                     break;
                 case "buttonRightCollision":
-                    // Toggle right collision
+                    ToggleRightCollision();
                     break;
                 case "buttonBottomCollision":
-                    // Toggle bottom collision
+                    ToggleBottomCollision();
                     break;
                 case "buttonLeftCollision":
-                    // Toggle left collision
+                    ToggleLeftCollision();
                     break;
             }
         }
@@ -291,13 +291,13 @@ namespace Keen5LevelEditor {
                     ToggleTopCollision();
                     break;
                 case Key.NumPad6:
-                    // Toggle right collision
+                    ToggleRightCollision();
                     break;
                 case Key.NumPad2:
-                    // Toggle bottom collision
+                    ToggleBottomCollision();
                     break;
                 case Key.NumPad4:
-                    // Toggle left collision
+                    ToggleLeftCollision();
                     break;
             }
         }
@@ -307,6 +307,27 @@ namespace Keen5LevelEditor {
 
             selectedTile.topCollision = selectedTile.topCollision == true ? false : true;
             buttonTopCollision.IsChecked = selectedTile.topCollision == true ? true : false;
+        }
+
+        private void ToggleRightCollision() {
+            if (selectedTile == null) return;
+
+            selectedTile.rightCollision = selectedTile.rightCollision == true ? false : true;
+            buttonRightCollision.IsChecked = selectedTile.rightCollision == true ? true : false;
+        }
+
+        private void ToggleBottomCollision() {
+            if (selectedTile == null) return;
+
+            selectedTile.bottomCollision = selectedTile.bottomCollision == true ? false : true;
+            buttonBottomCollision.IsChecked = selectedTile.bottomCollision == true ? true : false;
+        }
+
+        private void ToggleLeftCollision() {
+            if (selectedTile == null) return;
+
+            selectedTile.leftCollision = selectedTile.leftCollision == true ? false : true;
+            buttonLeftCollision.IsChecked = selectedTile.leftCollision == true ? true : false;
         }
     }
 }
