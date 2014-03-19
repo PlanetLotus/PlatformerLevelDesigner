@@ -260,5 +260,28 @@ namespace Keen5LevelEditor {
 
             Console.WriteLine("File loaded.");
         }
+
+        private void collisionButton_Click(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void Window_KeyUp(object sender, KeyEventArgs e) {
+            if (selectedTile != null) {
+                switch (e.Key) {
+                    case Key.NumPad8:
+                        // Toggle top collision
+                        break;
+                    case Key.NumPad6:
+                        // Toggle right collision
+                        break;
+                    case Key.NumPad2:
+                        // Toggle bottom collision
+                        break;
+                    case Key.NumPad4:
+                        // Toggle left collision
+                        break;
+                }
+            }
+        }
     }
 }
