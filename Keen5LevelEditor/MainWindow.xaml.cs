@@ -130,7 +130,6 @@ namespace Keen5LevelEditor {
             createTables();
         }
 
-        // TODO: Load collision details of selected tile
         private void tileSelector_Click(object sender, RoutedEventArgs e) {
             Button tileSelectorButton = (Button)sender;
 
@@ -145,6 +144,11 @@ namespace Keen5LevelEditor {
                 tileSelectorButton.BorderBrush = Brushes.Red;
 
                 selectedTile = clickedTile;
+
+                buttonTopCollision.IsChecked = selectedTile.topCollision == true ? true : false;
+                buttonRightCollision.IsChecked = selectedTile.rightCollision == true ? true : false;
+                buttonBottomCollision.IsChecked = selectedTile.bottomCollision == true ? true : false;
+                buttonLeftCollision.IsChecked = selectedTile.leftCollision == true ? true : false;
             } else {
                 // Deselect tile
                 selectedTile = null;
@@ -171,7 +175,6 @@ namespace Keen5LevelEditor {
             }
         }
 
-        // TODO: Save collision details of tile
         private void saveFile_Click(object sender, RoutedEventArgs e) {
             if (savePath == null) {
                 System.Windows.Forms.SaveFileDialog saveDialog = new System.Windows.Forms.SaveFileDialog();
@@ -194,8 +197,9 @@ namespace Keen5LevelEditor {
                 // First line is # tiles wide, # tiles tall, # tiles (non-blank) total
                 // Second line is src file name
                 // After that, one line per tile
-                // Each line is src x coord, src y coord, or -1 to indicate blank tile
-                sw.WriteLine(levelWidthInTiles.ToString() + " " + levelHeightInTiles.ToString() + " " + tileCount.ToString());
+                // Each line is src x coord, src y coord, then 1 or 0 for collision top, right, bottom, left 
+                // -1 indicates blank tile
+                sw.WriteLine(levelWidthInTiles + " " + levelHeightInTiles + " " + tileCount);
                 sw.WriteLine(loadImageSrcLabel.Content);
 
                 foreach (Tile tile in placedTiles) {
@@ -204,14 +208,19 @@ namespace Keen5LevelEditor {
                         continue;
                     }
 
-                    sw.WriteLine((tileWidth * tile.x).ToString() + " " + (tileHeight * tile.y).ToString());
+                    sw.WriteLine(
+                        (tileWidth * tile.x) + " " +
+                        (tileHeight * tile.y) + " " +
+                        Convert.ToInt32(tile.topCollision) + " " +
+                        Convert.ToInt32(tile.rightCollision) + " " +
+                        Convert.ToInt32(tile.bottomCollision) + " " +
+                        Convert.ToInt32(tile.leftCollision));
                 }
             }
 
             Console.WriteLine("File saved.");
         }
 
-        // TODO: Load collision details of tile
         private void loadSave_Click(object sender, RoutedEventArgs e) {
             System.Windows.Forms.OpenFileDialog open_dialog = new System.Windows.Forms.OpenFileDialog();
             System.Windows.Forms.DialogResult result = open_dialog.ShowDialog();
@@ -253,6 +262,11 @@ namespace Keen5LevelEditor {
                             Button button = (Button)FindName("levelTile" + count);
                             button.Background = new ImageBrush(srcTiles[i].image.Source);
                             placedTiles[count] = srcTiles[i];
+
+                            placedTiles[count].topCollision = splitLine[2].ToString() == "1" ? true : false;
+                            placedTiles[count].rightCollision = splitLine[3].ToString() == "1" ? true : false;
+                            placedTiles[count].bottomCollision = splitLine[4].ToString() == "1" ? true : false;
+                            placedTiles[count].leftCollision = splitLine[5].ToString() == "1" ? true : false;
                         }
 
                         Console.WriteLine(srcTiles[i].x + "," + srcTiles[i].y);
