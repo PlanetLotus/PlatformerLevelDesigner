@@ -263,13 +263,13 @@ namespace Keen5LevelEditor {
                             button.Background = new ImageBrush(srcTiles[i].image.Source);
                             placedTiles[count] = srcTiles[i];
 
+                            if (splitLine.Count() != 6) continue;
+
                             placedTiles[count].topCollision = splitLine[2].ToString() == "1" ? true : false;
                             placedTiles[count].rightCollision = splitLine[3].ToString() == "1" ? true : false;
                             placedTiles[count].bottomCollision = splitLine[4].ToString() == "1" ? true : false;
                             placedTiles[count].leftCollision = splitLine[5].ToString() == "1" ? true : false;
                         }
-
-                        Console.WriteLine(srcTiles[i].x + "," + srcTiles[i].y);
                     }
 
                     count++;
