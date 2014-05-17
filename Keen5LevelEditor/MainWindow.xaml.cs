@@ -149,6 +149,7 @@ namespace Keen5LevelEditor {
                 buttonRightCollision.IsChecked = selectedTile.rightCollision == true ? true : false;
                 buttonBottomCollision.IsChecked = selectedTile.bottomCollision == true ? true : false;
                 buttonLeftCollision.IsChecked = selectedTile.leftCollision == true ? true : false;
+                buttonIsPole.IsChecked = selectedTile.isPole == true ? true : false;
             } else {
                 // Deselect tile
                 selectedTile = null;
@@ -214,7 +215,9 @@ namespace Keen5LevelEditor {
                         Convert.ToInt32(tile.topCollision) + " " +
                         Convert.ToInt32(tile.rightCollision) + " " +
                         Convert.ToInt32(tile.bottomCollision) + " " +
-                        Convert.ToInt32(tile.leftCollision));
+                        Convert.ToInt32(tile.leftCollision) + " " +
+                        Convert.ToInt32(tile.isPole)
+                    );
                 }
             }
 
@@ -263,12 +266,13 @@ namespace Keen5LevelEditor {
                             button.Background = new ImageBrush(srcTiles[i].image.Source);
                             placedTiles[count] = srcTiles[i];
 
-                            if (splitLine.Count() != 6) continue;
+                            if (splitLine.Count() != 7) continue;
 
                             placedTiles[count].topCollision = splitLine[2].ToString() == "1" ? true : false;
                             placedTiles[count].rightCollision = splitLine[3].ToString() == "1" ? true : false;
                             placedTiles[count].bottomCollision = splitLine[4].ToString() == "1" ? true : false;
                             placedTiles[count].leftCollision = splitLine[5].ToString() == "1" ? true : false;
+                            placedTiles[count].isPole = splitLine[6].ToString() == "1" ? true : false;
                         }
                     }
 
@@ -279,7 +283,7 @@ namespace Keen5LevelEditor {
             Console.WriteLine("File loaded.");
         }
 
-        private void collisionButton_Click(object sender, RoutedEventArgs e) {
+        private void propertyButton_Click(object sender, RoutedEventArgs e) {
             if (selectedTile == null) return;
 
             ToggleButton clicked = (ToggleButton)sender;
@@ -296,6 +300,9 @@ namespace Keen5LevelEditor {
                     break;
                 case "buttonLeftCollision":
                     ToggleLeftCollision();
+                    break;
+                case "buttonIsPole":
+                    ToggleIsPole();
                     break;
             }
         }
@@ -345,6 +352,15 @@ namespace Keen5LevelEditor {
 
             selectedTile.leftCollision = selectedTile.leftCollision == true ? false : true;
             buttonLeftCollision.IsChecked = selectedTile.leftCollision == true ? true : false;
+        }
+
+        // Later: When this inevitably is not the only "IsProperty" I need, change this to be not a boolean
+        // Use an int to represent it in the file so that it only takes up one spot for mutually exclusive properties, like IsPole and, for example, IsSlope
+        private void ToggleIsPole() {
+            if (selectedTile == null) return;
+
+            selectedTile.isPole = selectedTile.isPole == true ? false : true;
+            buttonIsPole.IsChecked = selectedTile.isPole == true ? true : false;
         }
     }
 }

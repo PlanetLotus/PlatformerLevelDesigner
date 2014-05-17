@@ -16,6 +16,7 @@ namespace Keen5LevelEditor {
         public bool rightCollision { get; set; }
         public bool bottomCollision { get; set; }
         public bool leftCollision { get; set; }
+        public bool isPole { get; set; }
 
         public Tile(CroppedBitmap src, int x, int y) {
             image = new Image();
@@ -27,6 +28,7 @@ namespace Keen5LevelEditor {
             rightCollision = false;
             bottomCollision = false;
             leftCollision = false;
+            isPole = false;
         }
     }
 }

@@ -24,11 +24,12 @@
             </StackPanel>
             <StackPanel DockPanel.Dock="Left" Name="Body" HorizontalAlignment="Center" Margin="10,0">
             </StackPanel>
-            <StackPanel DockPanel.Dock="Left" Name="TileCollision" HorizontalAlignment="Center" Margin="10,0">
-                <ToggleButton Name="buttonTopCollision" Click="collisionButton_Click">Top Collision</ToggleButton>
-                <ToggleButton Name="buttonRightCollision" Click="collisionButton_Click">Right Collision</ToggleButton>
-                <ToggleButton Name="buttonBottomCollision" Click="collisionButton_Click">Bottom Collision</ToggleButton>
-                <ToggleButton Name="buttonLeftCollision" Click="collisionButton_Click">Left Collision</ToggleButton>
+            <StackPanel DockPanel.Dock="Left" Name="TileProperties" HorizontalAlignment="Center" Margin="10,0">
+                <ToggleButton Name="buttonTopCollision" Click="propertyButton_Click">Top Collision</ToggleButton>
+                <ToggleButton Name="buttonRightCollision" Click="propertyButton_Click">Right Collision</ToggleButton>
+                <ToggleButton Name="buttonBottomCollision" Click="propertyButton_Click">Bottom Collision</ToggleButton>
+                <ToggleButton Name="buttonLeftCollision" Click="propertyButton_Click" Margin="0,0,0,10">Left Collision</ToggleButton>
+                <ToggleButton Name="buttonIsPole" Click="propertyButton_Click">Is Pole</ToggleButton>
             </StackPanel>
         </DockPanel>
     </ScrollViewer>
