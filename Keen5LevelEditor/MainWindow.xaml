@@ -29,7 +29,8 @@
                 <ToggleButton Name="buttonRightCollision" Click="propertyButton_Click">Right Collision</ToggleButton>
                 <ToggleButton Name="buttonBottomCollision" Click="propertyButton_Click">Bottom Collision</ToggleButton>
                 <ToggleButton Name="buttonLeftCollision" Click="propertyButton_Click" Margin="0,0,0,10">Left Collision</ToggleButton>
-                <ToggleButton Name="buttonIsPole" Click="propertyButton_Click">Is Pole</ToggleButton>
+                <ToggleButton Name="buttonIsPole" Click="mutexPropertyButton_Click">Is Pole</ToggleButton>
+                <Label Name="labelLayer" HorizontalAlignment="Center" >0</Label>
             </StackPanel>
         </DockPanel>
     </ScrollViewer>
