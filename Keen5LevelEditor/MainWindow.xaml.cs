@@ -30,7 +30,8 @@ namespace Keen5LevelEditor {
 
         BitmapImage src;
         List<Tile> srcTiles;
-        List<Tile> placedTiles;
+        List<List<Tile>> placedTiles;
+        int numLayers = 2;
 
         string savePath;
 
@@ -94,7 +95,12 @@ namespace Keen5LevelEditor {
                 levelHeightInTiles = 32;
             }
 
-            placedTiles = new List<Tile>(levelHeightInTiles * levelWidthInTiles);
+            placedTiles = new List<List<Tile>>(numLayers);
+
+            // Initialize the inner lists
+            for (int i = 0; i < numLayers; i++)
+                placedTiles.Add(new List<Tile>(levelWidthInTiles * levelHeightInTiles));
+
             int tileCount = 0;
 
             for (int i=0; i<levelHeightInTiles; i++) {
@@ -111,7 +117,8 @@ namespace Keen5LevelEditor {
                     // Add button to stackpanel
                     stackPanel.Children.Add(button);
 
-                    placedTiles.Add(null);
+                    foreach (List<Tile> listOfTiles in placedTiles)
+                        listOfTiles.Add(null);
                     tileCount++;
                 }
 
@@ -169,11 +176,11 @@ namespace Keen5LevelEditor {
             if (tilePlacerButton.Background != null && tilePlacerButton.Background == selectedButton.Background) {
                 // Clear tile
                 tilePlacerButton.ClearValue(Button.BackgroundProperty);
-                placedTiles[buttonIndex] = null;
+                placedTiles[selectedTile.layer][buttonIndex] = null;
             } else {
                 // Assign tile
                 tilePlacerButton.Background = selectedButton.Background;
-                placedTiles[buttonIndex] = selectedTile;
+                placedTiles[selectedTile.layer][buttonIndex] = selectedTile;
             }
         }
 
@@ -190,13 +197,22 @@ namespace Keen5LevelEditor {
 
             if (placedTiles == null || placedTiles.Count == 0) return;
 
+            // Merge all layers into new object. This guarantees only one tile for each "spot" regardless of layer.
+            List<Tile> finalPlacedTiles = new List<Tile>(Enumerable.Repeat<Tile>(null, levelWidthInTiles * levelHeightInTiles));
+            for (int i = 0; i < numLayers; i++) {
+                for (int j = 0; j < placedTiles[i].Count(); j++) {
+                    if (placedTiles[i][j] != null)
+                        finalPlacedTiles[j] = placedTiles[i][j];
+                }
+            }
+
             // Calculate number of non-blank tiles
-            int tileCount = placedTiles.Where(t => t != null).Count();
+            int tileCount = finalPlacedTiles.Where(t => t != null).Count();
             if (tileCount < 1) return;
 
             using (StreamWriter sw = new StreamWriter(savePath)) {
                 // File format:
-                // First line is # tiles wide, # tiles tall, # tiles (non-blank) total
+                // First line is # tiles wide, # tiles tall, # tiles (non-blank) per layer
                 // Second line is src file name
                 // After that, one line per tile
                 // Each line is src x coord, src y coord, then 1 or 0 for collision top, right, bottom, left 
@@ -204,7 +220,7 @@ namespace Keen5LevelEditor {
                 sw.WriteLine(levelWidthInTiles + " " + levelHeightInTiles + " " + tileCount);
                 sw.WriteLine(loadImageSrcLabel.Content);
 
-                foreach (Tile tile in placedTiles) {
+                foreach (Tile tile in finalPlacedTiles) {
                     if (tile == null) {
                         sw.WriteLine("-1");
                         continue;
@@ -267,24 +283,27 @@ namespace Keen5LevelEditor {
                         continue;
                     }
 
+                    // Find matching source tile
                     for (int i = 0; i < srcTiles.Count(); i++) {
                         if (srcTiles[i].x * tileWidth == Convert.ToInt32(splitLine[0]) && srcTiles[i].y * tileHeight == Convert.ToInt32(splitLine[1])) {
+                            int layer = int.Parse(splitLine[7].ToString());
+
                             Button button = (Button)FindName("levelTile" + count);
                             button.Background = new ImageBrush(srcTiles[i].image.Source);
-                            placedTiles[count] = srcTiles[i];
+                            placedTiles[layer][count] = srcTiles[i];
 
                             if (splitLine.Count() != 8) continue;
 
-                            placedTiles[count].topCollision = splitLine[2].ToString() == "1" ? true : false;
-                            placedTiles[count].rightCollision = splitLine[3].ToString() == "1" ? true : false;
-                            placedTiles[count].bottomCollision = splitLine[4].ToString() == "1" ? true : false;
-                            placedTiles[count].leftCollision = splitLine[5].ToString() == "1" ? true : false;
-                            placedTiles[count].layer = int.Parse(splitLine[7].ToString());
+                            placedTiles[layer][count].topCollision = splitLine[2].ToString() == "1" ? true : false;
+                            placedTiles[layer][count].rightCollision = splitLine[3].ToString() == "1" ? true : false;
+                            placedTiles[layer][count].bottomCollision = splitLine[4].ToString() == "1" ? true : false;
+                            placedTiles[layer][count].leftCollision = splitLine[5].ToString() == "1" ? true : false;
+                            placedTiles[layer][count].layer = layer;
 
                             // Mutex properties will default to false, so only need to think about setting them to true
                             string mutexProperty = splitLine[6].ToString();
                             if (mutexProperty == "1")
-                                placedTiles[count].isPole = true;
+                                placedTiles[layer][count].isPole = true;
                         }
                     }
 
