@@ -290,20 +290,21 @@ namespace Keen5LevelEditor {
 
                             Button button = (Button)FindName("levelTile" + count);
                             button.Background = new ImageBrush(srcTiles[i].image.Source);
-                            placedTiles[layer][count] = srcTiles[i];
 
                             if (splitLine.Count() != 8) continue;
 
-                            placedTiles[layer][count].topCollision = splitLine[2].ToString() == "1" ? true : false;
-                            placedTiles[layer][count].rightCollision = splitLine[3].ToString() == "1" ? true : false;
-                            placedTiles[layer][count].bottomCollision = splitLine[4].ToString() == "1" ? true : false;
-                            placedTiles[layer][count].leftCollision = splitLine[5].ToString() == "1" ? true : false;
-                            placedTiles[layer][count].layer = layer;
+                            srcTiles[i].topCollision = splitLine[2].ToString() == "1" ? true : false;
+                            srcTiles[i].rightCollision = splitLine[3].ToString() == "1" ? true : false;
+                            srcTiles[i].bottomCollision = splitLine[4].ToString() == "1" ? true : false;
+                            srcTiles[i].leftCollision = splitLine[5].ToString() == "1" ? true : false;
+                            srcTiles[i].layer = layer;
 
                             // Mutex properties will default to false, so only need to think about setting them to true
                             string mutexProperty = splitLine[6].ToString();
                             if (mutexProperty == "1")
-                                placedTiles[layer][count].isPole = true;
+                                srcTiles[i].isPole = true;
+
+                            placedTiles[layer][count] = srcTiles[i];
                         }
                     }
 
