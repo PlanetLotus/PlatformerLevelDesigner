@@ -208,7 +208,7 @@ namespace Keen5LevelEditor {
             }
 
             // Calculate number of non-blank tiles
-            int tileCount = finalPlacedTiles.Where(t => t != null).Count();
+            int tileCount = finalPlacedTiles.Count(t => t != null);
             if (tileCount < 1) return;
 
             using (StreamWriter sw = new StreamWriter(savePath)) {
@@ -218,7 +218,10 @@ namespace Keen5LevelEditor {
                 // After that, one line per tile
                 // Each line is src x coord, src y coord, then 1 or 0 for collision top, right, bottom, left 
                 // -1 indicates blank tile
-                sw.WriteLine(levelWidthInTiles + " " + levelHeightInTiles + " " + tileCount);
+                string firstLine = levelWidthInTiles + " " + levelHeightInTiles + " ";
+                for (int i = 0; i < numLayers; i++)
+                    firstLine += placedTiles[i].Count(t => t != null) + " ";
+                sw.WriteLine(firstLine);
                 sw.WriteLine(loadImageSrcLabel.Content);
 
                 foreach (Tile tile in finalPlacedTiles) {
