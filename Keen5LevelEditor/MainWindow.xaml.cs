@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -270,6 +271,7 @@ namespace Keen5LevelEditor {
                 // Line 2
                 line = sr.ReadLine();
                 Console.WriteLine(line);
+
                 setImageSource(line);
                 createTables();
 
@@ -284,28 +286,27 @@ namespace Keen5LevelEditor {
                     }
 
                     // Find matching source tile
-                    for (int i = 0; i < srcTiles.Count(); i++) {
-                        if (srcTiles[i].x * tileWidth == Convert.ToInt32(splitLine[0]) && srcTiles[i].y * tileHeight == Convert.ToInt32(splitLine[1])) {
-                            int layer = int.Parse(splitLine[7].ToString());
+                    Tile srcTile = srcTiles.SingleOrDefault(t => t.x * tileWidth == int.Parse(splitLine[0]) && t.y * tileHeight == int.Parse(splitLine[1]));
+                    if (srcTile != null) {
+                        int layer = int.Parse(splitLine[7].ToString());
 
-                            Button button = (Button)FindName("levelTile" + count);
-                            button.Background = new ImageBrush(srcTiles[i].image.Source);
+                        Button button = (Button)FindName("levelTile" + count);
+                        button.Background = new ImageBrush(srcTile.image.Source);
 
-                            if (splitLine.Count() != 8) continue;
+                        if (splitLine.Count() != 8) continue;
 
-                            srcTiles[i].topCollision = splitLine[2].ToString() == "1" ? true : false;
-                            srcTiles[i].rightCollision = splitLine[3].ToString() == "1" ? true : false;
-                            srcTiles[i].bottomCollision = splitLine[4].ToString() == "1" ? true : false;
-                            srcTiles[i].leftCollision = splitLine[5].ToString() == "1" ? true : false;
-                            srcTiles[i].layer = layer;
+                        srcTile.topCollision = splitLine[2].ToString() == "1" ? true : false;
+                        srcTile.rightCollision = splitLine[3].ToString() == "1" ? true : false;
+                        srcTile.bottomCollision = splitLine[4].ToString() == "1" ? true : false;
+                        srcTile.leftCollision = splitLine[5].ToString() == "1" ? true : false;
+                        srcTile.layer = layer;
 
-                            // Mutex properties will default to false, so only need to think about setting them to true
-                            string mutexProperty = splitLine[6].ToString();
-                            if (mutexProperty == "1")
-                                srcTiles[i].isPole = true;
+                        // Mutex properties will default to false, so only need to think about setting them to true
+                        string mutexProperty = splitLine[6].ToString();
+                        if (mutexProperty == "1")
+                            srcTile.isPole = true;
 
-                            placedTiles[layer][count] = srcTiles[i];
-                        }
+                        placedTiles[layer][count] = srcTile;
                     }
 
                     count++;
