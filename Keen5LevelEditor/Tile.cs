@@ -11,6 +11,8 @@ namespace Keen5LevelEditor {
         public Image image;
         public int x;
         public int y;
+        public int leftHeight;
+        public int rightHeight;
 
         public bool topCollision { get; set; }
         public bool rightCollision { get; set; }
@@ -25,6 +27,8 @@ namespace Keen5LevelEditor {
             this.x = x;
             this.y = y;
 
+            leftHeight = 0;
+            rightHeight = 0;
             topCollision = false;
             rightCollision = false;
             bottomCollision = false;

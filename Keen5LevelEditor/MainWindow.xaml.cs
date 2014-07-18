@@ -357,6 +357,7 @@ namespace Keen5LevelEditor {
 
         private void Window_KeyUp(object sender, KeyEventArgs e) {
             if (selectedTile == null) return;
+            if (textBoxLeftHeight.IsFocused || textBoxRightHeight.IsFocused) return;
 
             switch (e.Key) {
                 case Key.NumPad8:
@@ -430,6 +431,18 @@ namespace Keen5LevelEditor {
 
             selectedTile.leftCollision = selectedTile.leftCollision == true ? false : true;
             buttonLeftCollision.IsChecked = selectedTile.leftCollision == true ? true : false;
+        }
+
+        private void TileHeight_KeyUp(object sender, KeyEventArgs e) {
+            if (selectedTile == null) return;
+
+            int height;
+
+            if (int.TryParse(textBoxLeftHeight.Text, out height))
+                selectedTile.leftHeight = height;
+
+            if (int.TryParse(textBoxRightHeight.Text, out height))
+                selectedTile.rightHeight = height;
         }
 
         private void SetLayerLabel(string key) {

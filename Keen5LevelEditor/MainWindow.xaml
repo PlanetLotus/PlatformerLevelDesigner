@@ -29,8 +29,10 @@
                 <ToggleButton Name="buttonRightCollision" Click="propertyButton_Click">Right Collision</ToggleButton>
                 <ToggleButton Name="buttonBottomCollision" Click="propertyButton_Click">Bottom Collision</ToggleButton>
                 <ToggleButton Name="buttonLeftCollision" Click="propertyButton_Click" Margin="0,0,0,10">Left Collision</ToggleButton>
+                <TextBox Name="textBoxLeftHeight" KeyUp="TileHeight_KeyUp" ToolTip="Left Height (Sloped Tiles Only)" />
+                <TextBox Name="textBoxRightHeight" KeyUp="TileHeight_KeyUp" ToolTip="Right Height (Sloped Tiles Only)" Margin="0,0,0,10" />
                 <ToggleButton Name="buttonIsPole" Click="mutexPropertyButton_Click">Is Pole</ToggleButton>
-                <Label Name="labelLayer" HorizontalAlignment="Center" >0</Label>
+                <Label Name="labelLayer" HorizontalAlignment="Center">0</Label>
             </StackPanel>
         </DockPanel>
     </ScrollViewer>
