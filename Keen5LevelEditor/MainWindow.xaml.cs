@@ -153,6 +153,8 @@ namespace Keen5LevelEditor {
 
                 selectedTile = clickedTile;
 
+                textBoxLeftHeight.Text = selectedTile.leftHeight.ToString();
+                textBoxRightHeight.Text = selectedTile.rightHeight.ToString();
                 buttonTopCollision.IsChecked = selectedTile.topCollision == true ? true : false;
                 buttonRightCollision.IsChecked = selectedTile.rightCollision == true ? true : false;
                 buttonBottomCollision.IsChecked = selectedTile.bottomCollision == true ? true : false;
@@ -216,7 +218,7 @@ namespace Keen5LevelEditor {
                 // First line is # tiles wide, # tiles tall, # tiles (non-blank) per layer
                 // Second line is src file name
                 // After that, one line per tile
-                // Each line is src x coord, src y coord, then 1 or 0 for collision top, right, bottom, left 
+                // Each line is src x coord, src y coord, leftHeight, rightHeight, then 1 or 0 for collision top, right, bottom, left 
                 // -1 indicates blank tile
                 string firstLine = levelWidthInTiles + " " + levelHeightInTiles + " ";
                 for (int i = 0; i < numLayers; i++)
@@ -238,6 +240,8 @@ namespace Keen5LevelEditor {
                     sw.WriteLine(
                         (tileWidth * tile.x) + " " +
                         (tileHeight * tile.y) + " " +
+                        tile.leftHeight + " " +
+                        tile.rightHeight + " " +
                         Convert.ToInt32(tile.topCollision) + " " +
                         Convert.ToInt32(tile.rightCollision) + " " +
                         Convert.ToInt32(tile.bottomCollision) + " " +
@@ -291,21 +295,23 @@ namespace Keen5LevelEditor {
                     // Find matching source tile
                     Tile srcTile = srcTiles.SingleOrDefault(t => t.x * tileWidth == int.Parse(splitLine[0]) && t.y * tileHeight == int.Parse(splitLine[1]));
                     if (srcTile != null) {
-                        int layer = int.Parse(splitLine[7].ToString());
+                        int layer = int.Parse(splitLine[9].ToString());
 
                         Button button = (Button)FindName("levelTile" + count);
                         button.Background = new ImageBrush(srcTile.image.Source);
 
-                        if (splitLine.Count() != 8) continue;
+                        if (splitLine.Count() != 10) continue;
 
-                        srcTile.topCollision = splitLine[2].ToString() == "1" ? true : false;
-                        srcTile.rightCollision = splitLine[3].ToString() == "1" ? true : false;
-                        srcTile.bottomCollision = splitLine[4].ToString() == "1" ? true : false;
-                        srcTile.leftCollision = splitLine[5].ToString() == "1" ? true : false;
+                        srcTile.leftHeight = int.Parse(splitLine[2]);
+                        srcTile.rightHeight = int.Parse(splitLine[3]);
+                        srcTile.topCollision = splitLine[4].ToString() == "1" ? true : false;
+                        srcTile.rightCollision = splitLine[5].ToString() == "1" ? true : false;
+                        srcTile.bottomCollision = splitLine[6].ToString() == "1" ? true : false;
+                        srcTile.leftCollision = splitLine[7].ToString() == "1" ? true : false;
                         srcTile.layer = layer;
 
                         // Mutex properties will default to false, so only need to think about setting them to true
-                        string mutexProperty = splitLine[6].ToString();
+                        string mutexProperty = splitLine[8].ToString();
                         if (mutexProperty == "1")
                             srcTile.isPole = true;
 
