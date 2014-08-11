@@ -226,11 +226,21 @@ namespace Keen5LevelEditor {
                 sw.WriteLine(firstLine);
                 sw.WriteLine(loadImageSrcLabel.Content);
 
-                foreach (Tile tile in finalPlacedTiles) {
-                    if (tile == null) {
-                        sw.WriteLine("-1");
-                        continue;
+                for (int i = 0; i < finalPlacedTiles.Count; i++) {
+                    int nullCount = 0;
+                    while (i < finalPlacedTiles.Count && finalPlacedTiles[i] == null) {
+                        nullCount++;
+                        i++;
                     }
+
+                    if (nullCount != 0) {
+                        sw.WriteLine("-" + nullCount);
+                        nullCount = 0;
+
+                        if (i >= finalPlacedTiles.Count) break;
+                    }
+
+                    Tile tile = finalPlacedTiles[i];
 
                     // Determine mutex property value
                     int mutexProperty = 0;
@@ -287,8 +297,9 @@ namespace Keen5LevelEditor {
                 while ((line = sr.ReadLine()) != null) {
                     string[] splitLine = line.Split(' ');
 
-                    if (splitLine[0] == "-1") {
-                        count++;
+                    if (splitLine[0].StartsWith("-")) {
+                        int skipValue = int.Parse(splitLine[0].Split('-').Last());
+                        count += skipValue;
                         continue;
                     }
 
