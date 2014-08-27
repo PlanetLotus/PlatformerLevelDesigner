@@ -32,6 +32,7 @@
                 <TextBox Name="textBoxLeftHeight" KeyUp="TileHeight_KeyUp" ToolTip="Left Height (Sloped Tiles Only)" Text="0" />
                 <TextBox Name="textBoxRightHeight" KeyUp="TileHeight_KeyUp" ToolTip="Right Height (Sloped Tiles Only)" Text="0" Margin="0,0,0,10" />
                 <ToggleButton Name="buttonIsPole" Click="mutexPropertyButton_Click">Is Pole</ToggleButton>
+                <ToggleButton Name="buttonIsEdge" Click="buttonIsEdge_Click">Is Edge</ToggleButton>
                 <Label Name="labelLayer" HorizontalAlignment="Center">0</Label>
             </StackPanel>
         </DockPanel>

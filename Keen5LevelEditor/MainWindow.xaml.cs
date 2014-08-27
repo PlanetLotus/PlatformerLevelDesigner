@@ -160,6 +160,7 @@ namespace Keen5LevelEditor {
                 buttonBottomCollision.IsChecked = selectedTile.bottomCollision == true ? true : false;
                 buttonLeftCollision.IsChecked = selectedTile.leftCollision == true ? true : false;
                 buttonIsPole.IsChecked = selectedTile.isPole == true ? true : false;
+                buttonIsEdge.IsChecked = selectedTile.isEdge == true ? true : false;
                 labelLayer.Content = selectedTile.layer;
             } else {
                 // Deselect tile
@@ -256,6 +257,7 @@ namespace Keen5LevelEditor {
                         Convert.ToInt32(tile.rightCollision) + " " +
                         Convert.ToInt32(tile.bottomCollision) + " " +
                         Convert.ToInt32(tile.leftCollision) + " " +
+                        Convert.ToInt32(tile.isEdge) + " " +
                         mutexProperty + " " +
                         tile.layer
                     );
@@ -306,12 +308,12 @@ namespace Keen5LevelEditor {
                     // Find matching source tile
                     Tile srcTile = srcTiles.SingleOrDefault(t => t.x * tileWidth == int.Parse(splitLine[0]) && t.y * tileHeight == int.Parse(splitLine[1]));
                     if (srcTile != null) {
-                        int layer = int.Parse(splitLine[9].ToString());
+                        int layer = int.Parse(splitLine[10].ToString());
 
                         Button button = (Button)FindName("levelTile" + count);
                         button.Background = new ImageBrush(srcTile.image.Source);
 
-                        if (splitLine.Count() != 10) continue;
+                        if (splitLine.Count() != 11) continue;
 
                         srcTile.leftHeight = int.Parse(splitLine[2]);
                         srcTile.rightHeight = int.Parse(splitLine[3]);
@@ -319,12 +321,14 @@ namespace Keen5LevelEditor {
                         srcTile.rightCollision = splitLine[5].ToString() == "1" ? true : false;
                         srcTile.bottomCollision = splitLine[6].ToString() == "1" ? true : false;
                         srcTile.leftCollision = splitLine[7].ToString() == "1" ? true : false;
+                        srcTile.isEdge = splitLine[8].ToString() == "1" ? true : false;
                         srcTile.layer = layer;
 
                         // Mutex properties will default to false, so only need to think about setting them to true
-                        string mutexProperty = splitLine[8].ToString();
+                        string mutexProperty = splitLine[9].ToString();
                         if (mutexProperty == "1")
                             srcTile.isPole = true;
+
 
                         placedTiles[layer][count] = srcTile;
                     }
@@ -467,11 +471,11 @@ namespace Keen5LevelEditor {
             labelLayer.Content = key;
         }
 
-        private void ToggleIsPole() {
+        private void buttonIsEdge_Click(object sender, RoutedEventArgs e) {
             if (selectedTile == null) return;
 
-            selectedTile.isPole = selectedTile.isPole == true ? false : true;
-            buttonIsPole.IsChecked = selectedTile.isPole == true ? true : false;
+            selectedTile.isEdge = selectedTile.isEdge == true ? false : true;
+            buttonIsEdge.IsChecked = selectedTile.isEdge == true ? true : false;
         }
     }
 }
