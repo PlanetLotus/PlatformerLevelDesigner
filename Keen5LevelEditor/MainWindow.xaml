@@ -34,6 +34,7 @@
                 <ToggleButton Name="buttonIsPole" Click="mutexPropertyButton_Click">Is Pole</ToggleButton>
                 <ToggleButton Name="buttonIsEdge" Click="buttonIsEdge_Click">Is Edge</ToggleButton>
                 <Label Name="labelLayer" HorizontalAlignment="Center">0</Label>
+                <TextBox Name="textBoxNotes" Height="100" MaxWidth="90" TextWrapping="Wrap" AcceptsReturn="True"></TextBox>
             </StackPanel>
         </DockPanel>
     </ScrollViewer>

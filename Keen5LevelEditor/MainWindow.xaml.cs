@@ -144,6 +144,11 @@ namespace Keen5LevelEditor {
             // Find tile associated with button
             int tileIndex = Convert.ToInt32(tileSelectorButton.Name.Split(new [] {"tile"}, StringSplitOptions.None)[1]);
             Tile clickedTile = srcTiles[tileIndex];
+
+            // Before changing tiles, save current tile's notes if they exist
+            if (selectedTile != null && textBoxNotes.Text.Trim() != "") {
+                selectedTile.notes = textBoxNotes.Text.Trim();
+            }
             
             // Toggle selection of tile and button
             if (selectedTile == null || selectedTile != clickedTile) {
@@ -162,6 +167,7 @@ namespace Keen5LevelEditor {
                 buttonIsPole.IsChecked = selectedTile.isPole == true ? true : false;
                 buttonIsEdge.IsChecked = selectedTile.isEdge == true ? true : false;
                 labelLayer.Content = selectedTile.layer;
+                textBoxNotes.Text = selectedTile.notes;
             } else {
                 // Deselect tile
                 selectedTile = null;
@@ -214,53 +220,71 @@ namespace Keen5LevelEditor {
             int tileCount = finalPlacedTiles.Count(t => t != null);
             if (tileCount < 1) return;
 
+            string[] savePathDirs = savePath.Split('\\');
+            string relativeNotesPath = "notes_" + savePathDirs.Last();
+
+            string notesSavePath = "";
+            foreach (string dir in savePathDirs) {
+                if (dir != savePathDirs.Last()) {
+                    notesSavePath += dir + '\\';
+                }
+            }
+
+            notesSavePath += relativeNotesPath;
+
             using (StreamWriter sw = new StreamWriter(savePath)) {
-                // File format:
-                // First line is # tiles wide, # tiles tall, # tiles (non-blank) per layer
-                // Second line is src file name
-                // After that, one line per tile
-                // Each line is src x coord, src y coord, leftHeight, rightHeight, then 1 or 0 for collision top, right, bottom, left 
-                // -1 indicates blank tile
-                string firstLine = levelWidthInTiles + " " + levelHeightInTiles + " ";
-                for (int i = 0; i < numLayers; i++)
-                    firstLine += placedTiles[i].Count(t => t != null) + " ";
-                sw.WriteLine(firstLine);
-                sw.WriteLine(loadImageSrcLabel.Content);
+                using (StreamWriter sw2 = new StreamWriter(notesSavePath)) {
+                    // File format:
+                    // First line is # tiles wide, # tiles tall, # tiles (non-blank) per layer
+                    // Second line is src file name
+                    // After that, one line per tile
+                    // Each line is src x coord, src y coord, leftHeight, rightHeight, then 1 or 0 for collision top, right, bottom, left 
+                    // -1 indicates blank tile
+                    string firstLine = levelWidthInTiles + " " + levelHeightInTiles + " ";
+                    for (int i = 0; i < numLayers; i++)
+                        firstLine += placedTiles[i].Count(t => t != null) + " ";
+                    sw.WriteLine(firstLine);
+                    sw.WriteLine(loadImageSrcLabel.Content);
 
-                for (int i = 0; i < finalPlacedTiles.Count; i++) {
-                    int nullCount = 0;
-                    while (i < finalPlacedTiles.Count && finalPlacedTiles[i] == null) {
-                        nullCount++;
-                        i++;
+                    for (int i = 0; i < finalPlacedTiles.Count; i++) {
+                        int nullCount = 0;
+                        while (i < finalPlacedTiles.Count && finalPlacedTiles[i] == null) {
+                            nullCount++;
+                            i++;
+                        }
+
+                        if (nullCount != 0) {
+                            sw.WriteLine("-" + nullCount);
+                            nullCount = 0;
+
+                            if (i >= finalPlacedTiles.Count) break;
+                        }
+
+                        Tile tile = finalPlacedTiles[i];
+
+                        // Determine mutex property value
+                        int mutexProperty = 0;
+                        if (tile.isPole)
+                            mutexProperty = 1;
+
+                        sw.WriteLine(
+                            (tileWidth * tile.x) + " " +
+                            (tileHeight * tile.y) + " " +
+                            tile.leftHeight + " " +
+                            tile.rightHeight + " " +
+                            Convert.ToInt32(tile.topCollision) + " " +
+                            Convert.ToInt32(tile.rightCollision) + " " +
+                            Convert.ToInt32(tile.bottomCollision) + " " +
+                            Convert.ToInt32(tile.leftCollision) + " " +
+                            Convert.ToInt32(tile.isEdge) + " " +
+                            mutexProperty + " " +
+                            tile.layer
+                        );
+
+                        sw2.WriteLine(
+                            tile.notes
+                        );
                     }
-
-                    if (nullCount != 0) {
-                        sw.WriteLine("-" + nullCount);
-                        nullCount = 0;
-
-                        if (i >= finalPlacedTiles.Count) break;
-                    }
-
-                    Tile tile = finalPlacedTiles[i];
-
-                    // Determine mutex property value
-                    int mutexProperty = 0;
-                    if (tile.isPole)
-                        mutexProperty = 1;
-
-                    sw.WriteLine(
-                        (tileWidth * tile.x) + " " +
-                        (tileHeight * tile.y) + " " +
-                        tile.leftHeight + " " +
-                        tile.rightHeight + " " +
-                        Convert.ToInt32(tile.topCollision) + " " +
-                        Convert.ToInt32(tile.rightCollision) + " " +
-                        Convert.ToInt32(tile.bottomCollision) + " " +
-                        Convert.ToInt32(tile.leftCollision) + " " +
-                        Convert.ToInt32(tile.isEdge) + " " +
-                        mutexProperty + " " +
-                        tile.layer
-                    );
                 }
             }
 
@@ -276,64 +300,79 @@ namespace Keen5LevelEditor {
 
             string line;
 
+            string[] loadPathDirs = open_dialog.FileName.Split('\\');
+            string relativeNotesPath = "notes_" + loadPathDirs.Last();
+
+            string notesLoadPath = "";
+            foreach (string dir in loadPathDirs) {
+                if (dir != loadPathDirs.Last()) {
+                    notesLoadPath += dir + '\\';
+                }
+            }
+
+            notesLoadPath += relativeNotesPath;
+
             using (StreamReader sr = new StreamReader(open_dialog.FileName)) {
-                // Exception: Get first two lines differently
-                // Line 1
-                line = sr.ReadLine();
-                string[] line1Values = line.Split(' ');
-                levelWidthInTiles = Convert.ToInt32(line1Values[0]);
-                levelHeightInTiles = Convert.ToInt32(line1Values[1]);
+                using (StreamReader sr2 = new StreamReader(notesLoadPath)) {
+                    // Exception: Get first two lines differently
+                    // Line 1
+                    line = sr.ReadLine();
+                    string[] line1Values = line.Split(' ');
+                    levelWidthInTiles = Convert.ToInt32(line1Values[0]);
+                    levelHeightInTiles = Convert.ToInt32(line1Values[1]);
 
-                textboxLevelWidth.Text = levelWidthInTiles.ToString();
-                textboxLevelHeight.Text = levelHeightInTiles.ToString();
+                    textboxLevelWidth.Text = levelWidthInTiles.ToString();
+                    textboxLevelHeight.Text = levelHeightInTiles.ToString();
 
-                // Line 2
-                line = sr.ReadLine();
-                Console.WriteLine(line);
+                    // Line 2
+                    line = sr.ReadLine();
+                    Console.WriteLine(line);
 
-                setImageSource(line);
-                createTables();
+                    setImageSource(line);
+                    createTables();
 
-                int count = 0;
+                    int count = 0;
 
-                while ((line = sr.ReadLine()) != null) {
-                    string[] splitLine = line.Split(' ');
+                    while ((line = sr.ReadLine()) != null) {
+                        string[] splitLine = line.Split(' ');
 
-                    if (splitLine[0].StartsWith("-")) {
-                        int skipValue = int.Parse(splitLine[0].Split('-').Last());
-                        count += skipValue;
-                        continue;
+                        if (splitLine[0].StartsWith("-")) {
+                            int skipValue = int.Parse(splitLine[0].Split('-').Last());
+                            count += skipValue;
+                            continue;
+                        }
+
+                        // Find matching source tile
+                        Tile srcTile = srcTiles.SingleOrDefault(t => t.x * tileWidth == int.Parse(splitLine[0]) && t.y * tileHeight == int.Parse(splitLine[1]));
+                        if (srcTile != null) {
+                            int layer = int.Parse(splitLine[10].ToString());
+
+                            Button button = (Button)FindName("levelTile" + count);
+                            button.Background = new ImageBrush(srcTile.image.Source);
+
+                            if (splitLine.Count() != 11) continue;
+
+                            srcTile.leftHeight = int.Parse(splitLine[2]);
+                            srcTile.rightHeight = int.Parse(splitLine[3]);
+                            srcTile.topCollision = splitLine[4].ToString() == "1" ? true : false;
+                            srcTile.rightCollision = splitLine[5].ToString() == "1" ? true : false;
+                            srcTile.bottomCollision = splitLine[6].ToString() == "1" ? true : false;
+                            srcTile.leftCollision = splitLine[7].ToString() == "1" ? true : false;
+                            srcTile.isEdge = splitLine[8].ToString() == "1" ? true : false;
+                            srcTile.layer = layer;
+                            srcTile.notes = sr2.ReadLine();
+
+                            // Mutex properties will default to false, so only need to think about setting them to true
+                            string mutexProperty = splitLine[9].ToString();
+                            if (mutexProperty == "1")
+                                srcTile.isPole = true;
+
+
+                            placedTiles[layer][count] = srcTile;
+                        }
+
+                        count++;
                     }
-
-                    // Find matching source tile
-                    Tile srcTile = srcTiles.SingleOrDefault(t => t.x * tileWidth == int.Parse(splitLine[0]) && t.y * tileHeight == int.Parse(splitLine[1]));
-                    if (srcTile != null) {
-                        int layer = int.Parse(splitLine[10].ToString());
-
-                        Button button = (Button)FindName("levelTile" + count);
-                        button.Background = new ImageBrush(srcTile.image.Source);
-
-                        if (splitLine.Count() != 11) continue;
-
-                        srcTile.leftHeight = int.Parse(splitLine[2]);
-                        srcTile.rightHeight = int.Parse(splitLine[3]);
-                        srcTile.topCollision = splitLine[4].ToString() == "1" ? true : false;
-                        srcTile.rightCollision = splitLine[5].ToString() == "1" ? true : false;
-                        srcTile.bottomCollision = splitLine[6].ToString() == "1" ? true : false;
-                        srcTile.leftCollision = splitLine[7].ToString() == "1" ? true : false;
-                        srcTile.isEdge = splitLine[8].ToString() == "1" ? true : false;
-                        srcTile.layer = layer;
-
-                        // Mutex properties will default to false, so only need to think about setting them to true
-                        string mutexProperty = splitLine[9].ToString();
-                        if (mutexProperty == "1")
-                            srcTile.isPole = true;
-
-
-                        placedTiles[layer][count] = srcTile;
-                    }
-
-                    count++;
                 }
             }
 

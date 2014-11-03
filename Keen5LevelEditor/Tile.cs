@@ -21,6 +21,7 @@ namespace Keen5LevelEditor {
         public bool isPole { get; set; }
         public bool isEdge { get; set; }
         public int layer { get; set; }
+        public string notes { get; set; }
 
         public Tile(CroppedBitmap src, int x, int y) {
             image = new Image();
@@ -37,6 +38,7 @@ namespace Keen5LevelEditor {
             isPole = false;
             isEdge = false;
             layer = 0;  // This is bound to change
+            notes = "";
         }
     }
 }
