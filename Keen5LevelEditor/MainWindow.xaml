@@ -20,10 +20,14 @@
                     <Label Name="loadImageSrcLabel">Filename</Label>
                 </StackPanel>
             </StackPanel> 
+            <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible">
             <StackPanel DockPanel.Dock="Left" Name="TileList" HorizontalAlignment="Center" Margin="10,0">
             </StackPanel>
-            <StackPanel DockPanel.Dock="Left" Name="Body" HorizontalAlignment="Center" Margin="10,0">
-            </StackPanel>
+            </ScrollViewer>
+            <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible" MaxWidth="750">
+                <StackPanel DockPanel.Dock="Left" Name="Body" HorizontalAlignment="Center" Margin="10,0">
+                </StackPanel>
+            </ScrollViewer>
             <StackPanel DockPanel.Dock="Left" Name="TileProperties" HorizontalAlignment="Center" Margin="10,0">
                 <ToggleButton Name="buttonTopCollision" Click="propertyButton_Click">Top Collision</ToggleButton>
                 <ToggleButton Name="buttonRightCollision" Click="propertyButton_Click">Right Collision</ToggleButton>
