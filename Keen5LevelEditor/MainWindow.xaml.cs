@@ -220,9 +220,10 @@ namespace Keen5LevelEditor {
             int tileCount = finalPlacedTiles.Count(t => t != null);
             if (tileCount < 1) return;
 
-            SaveForegroundTiles(finalPlacedTiles);
-
-            Console.WriteLine("File saved.");
+            if (backgroundRadio.IsChecked.HasValue && backgroundRadio.IsChecked.Value)
+                SaveBackgroundTiles();
+            else if (foregroundRadio.IsChecked.HasValue && foregroundRadio.IsChecked.Value)
+                SaveForegroundTiles(finalPlacedTiles);
         }
 
         private void loadSave_Click(object sender, RoutedEventArgs e) {
@@ -232,9 +233,10 @@ namespace Keen5LevelEditor {
             if (result != System.Windows.Forms.DialogResult.OK)
                 return;
 
-            LoadForegroundTiles(openDialog.FileName);
-
-            Console.WriteLine("File loaded.");
+            if (backgroundRadio.IsChecked.HasValue && backgroundRadio.IsChecked.Value)
+                LoadBackgroundTiles();
+            else if (foregroundRadio.IsChecked.HasValue && foregroundRadio.IsChecked.Value)
+                LoadForegroundTiles(openDialog.FileName);
 
             foregroundRadio.Visibility = Visibility.Collapsed;
             backgroundRadio.Visibility = Visibility.Collapsed;
@@ -309,9 +311,11 @@ namespace Keen5LevelEditor {
                     }
                 }
             }
+            Console.WriteLine("File saved.");
         }
 
         private void SaveBackgroundTiles() {
+            Console.WriteLine("File saved.");
         }
 
         private void LoadForegroundTiles(string fileName) {
@@ -389,9 +393,11 @@ namespace Keen5LevelEditor {
                     }
                 }
             }
+            Console.WriteLine("File loaded.");
         }
 
         private void LoadBackgroundTiles() {
+            Console.WriteLine("File loaded.");
         }
 
         private void propertyButton_Click(object sender, RoutedEventArgs e) {
