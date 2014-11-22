@@ -220,6 +220,28 @@ namespace Keen5LevelEditor {
             int tileCount = finalPlacedTiles.Count(t => t != null);
             if (tileCount < 1) return;
 
+            SaveForegroundTiles(finalPlacedTiles);
+
+            Console.WriteLine("File saved.");
+        }
+
+        private void loadSave_Click(object sender, RoutedEventArgs e) {
+            System.Windows.Forms.OpenFileDialog openDialog = new System.Windows.Forms.OpenFileDialog();
+            System.Windows.Forms.DialogResult result = openDialog.ShowDialog();
+
+            if (result != System.Windows.Forms.DialogResult.OK)
+                return;
+
+            LoadForegroundTiles(openDialog.FileName);
+
+            Console.WriteLine("File loaded.");
+
+            foregroundRadio.Visibility = Visibility.Collapsed;
+            backgroundRadio.Visibility = Visibility.Collapsed;
+            loadImageSrcLabel.Visibility = Visibility.Visible;
+        }
+
+        private void SaveForegroundTiles(List<Tile> finalPlacedTiles) {
             string[] savePathDirs = savePath.Split('\\');
             string relativeNotesPath = "notes_" + savePathDirs.Last();
 
@@ -287,20 +309,13 @@ namespace Keen5LevelEditor {
                     }
                 }
             }
-
-            Console.WriteLine("File saved.");
         }
 
-        private void loadSave_Click(object sender, RoutedEventArgs e) {
-            System.Windows.Forms.OpenFileDialog open_dialog = new System.Windows.Forms.OpenFileDialog();
-            System.Windows.Forms.DialogResult result = open_dialog.ShowDialog();
+        private void SaveBackgroundTiles() {
+        }
 
-            if (result != System.Windows.Forms.DialogResult.OK)
-                return;
-
-            string line;
-
-            string[] loadPathDirs = open_dialog.FileName.Split('\\');
+        private void LoadForegroundTiles(string fileName) {
+            string[] loadPathDirs = fileName.Split('\\');
             string relativeNotesPath = "notes_" + loadPathDirs.Last();
 
             string notesLoadPath = "";
@@ -312,11 +327,11 @@ namespace Keen5LevelEditor {
 
             notesLoadPath += relativeNotesPath;
 
-            using (StreamReader sr = new StreamReader(open_dialog.FileName)) {
+            using (StreamReader sr = new StreamReader(fileName)) {
                 using (StreamReader sr2 = new StreamReader(notesLoadPath)) {
                     // Exception: Get first two lines differently
                     // Line 1
-                    line = sr.ReadLine();
+                    string line = sr.ReadLine();
                     string[] line1Values = line.Split(' ');
                     levelWidthInTiles = Convert.ToInt32(line1Values[0]);
                     levelHeightInTiles = Convert.ToInt32(line1Values[1]);
@@ -374,12 +389,9 @@ namespace Keen5LevelEditor {
                     }
                 }
             }
+        }
 
-            Console.WriteLine("File loaded.");
-
-            foregroundRadio.Visibility = Visibility.Collapsed;
-            backgroundRadio.Visibility = Visibility.Collapsed;
-            loadImageSrcLabel.Visibility = Visibility.Visible;
+        private void LoadBackgroundTiles() {
         }
 
         private void propertyButton_Click(object sender, RoutedEventArgs e) {
