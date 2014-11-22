@@ -215,7 +215,7 @@ namespace Keen5LevelEditor {
             if (tileCount < 1) return;
 
             if (backgroundRadio.IsChecked.HasValue && backgroundRadio.IsChecked.Value)
-                SaveBackgroundTiles();
+                SaveBackgroundTiles(finalPlacedTiles);
             else if (foregroundRadio.IsChecked.HasValue && foregroundRadio.IsChecked.Value)
                 SaveForegroundTiles(finalPlacedTiles);
         }
@@ -308,7 +308,43 @@ namespace Keen5LevelEditor {
             Console.WriteLine("File saved.");
         }
 
-        private void SaveBackgroundTiles() {
+        private void SaveBackgroundTiles(List<Tile> finalPlacedTiles) {
+            using (StreamWriter sw = new StreamWriter(savePath)) {
+                // File format:
+                // First line is # tiles wide, # tiles tall
+                // Second line is src file name
+                // After that, one line per tile
+                // Each line is src x coord, src y coord 
+                // -1 indicates blank tile
+                string firstLine = levelWidthInTiles + " " + levelHeightInTiles + " ";
+                sw.WriteLine(firstLine);
+
+                string secondLine = loadImageSrcLabel.Content.ToString();
+                sw.WriteLine(secondLine);
+
+                for (int i = 0; i < finalPlacedTiles.Count; i++) {
+                    int nullCount = 0;
+                    while (i < finalPlacedTiles.Count && finalPlacedTiles[i] == null) {
+                        nullCount++;
+                        i++;
+                    }
+
+                    if (nullCount != 0) {
+                        sw.WriteLine("-" + nullCount);
+                        nullCount = 0;
+
+                        if (i >= finalPlacedTiles.Count) break;
+                    }
+
+                    Tile tile = finalPlacedTiles[i];
+
+                    sw.WriteLine(
+                        (tileWidth * tile.x) + " " +
+                        (tileHeight * tile.y) + " "
+                    );
+                }
+            }
+
             Console.WriteLine("File saved.");
         }
 
