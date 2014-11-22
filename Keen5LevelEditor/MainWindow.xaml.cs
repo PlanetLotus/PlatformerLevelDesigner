@@ -367,7 +367,6 @@ namespace Keen5LevelEditor {
                             if (mutexProperty == "1")
                                 srcTile.isPole = true;
 
-
                             placedTiles[layer][count] = srcTile;
                         }
 
@@ -377,6 +376,10 @@ namespace Keen5LevelEditor {
             }
 
             Console.WriteLine("File loaded.");
+
+            foregroundRadio.Visibility = Visibility.Collapsed;
+            backgroundRadio.Visibility = Visibility.Collapsed;
+            loadImageSrcLabel.Visibility = Visibility.Visible;
         }
 
         private void propertyButton_Click(object sender, RoutedEventArgs e) {

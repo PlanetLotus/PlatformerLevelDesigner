@@ -15,16 +15,18 @@
                     <TextBox Name="textboxTileHeight" Width="40" Text="32" ToolTip="Tile Height"></TextBox>
                     <TextBox Name="textboxLevelWidth" Width="40" ToolTip="Level Width"></TextBox>
                     <TextBox Name="textboxLevelHeight" Width="40" ToolTip="Level Height"></TextBox>
+                    <RadioButton GroupName="TileType" Name="foregroundRadio" Margin="3" IsChecked="True">Foreground</RadioButton>
+                    <RadioButton GroupName="TileType" Name="backgroundRadio" Margin="3">Background</RadioButton>
                     <Button Name="loadSave" Click="loadSave_Click">Load Saved File</Button>
                     <Button Name="loadImageSrc" Click="loadImageSrc_Click">Load Image Source</Button>
-                    <Label Name="loadImageSrcLabel">Filename</Label>
+                    <Label Name="loadImageSrcLabel" Visibility="Collapsed">Filename</Label>
                 </StackPanel>
             </StackPanel> 
             <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible">
             <StackPanel DockPanel.Dock="Left" Name="TileList" HorizontalAlignment="Center" Margin="10,0">
             </StackPanel>
             </ScrollViewer>
-            <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible" MaxWidth="750">
+            <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" MaxWidth="750" MaxHeight="500" VerticalAlignment="Top">
                 <StackPanel DockPanel.Dock="Left" Name="Body" HorizontalAlignment="Center" Margin="10,0">
                 </StackPanel>
             </ScrollViewer>
