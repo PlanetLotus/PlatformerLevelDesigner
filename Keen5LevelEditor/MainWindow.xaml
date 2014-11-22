@@ -31,16 +31,16 @@
                 </StackPanel>
             </ScrollViewer>
             <StackPanel DockPanel.Dock="Left" Name="TileProperties" HorizontalAlignment="Center" Margin="10,0">
-                <ToggleButton Name="buttonTopCollision" Click="propertyButton_Click">Top Collision</ToggleButton>
-                <ToggleButton Name="buttonRightCollision" Click="propertyButton_Click">Right Collision</ToggleButton>
-                <ToggleButton Name="buttonBottomCollision" Click="propertyButton_Click">Bottom Collision</ToggleButton>
-                <ToggleButton Name="buttonLeftCollision" Click="propertyButton_Click" Margin="0,0,0,10">Left Collision</ToggleButton>
-                <TextBox Name="textBoxLeftHeight" KeyUp="TileHeight_KeyUp" ToolTip="Left Height (Sloped Tiles Only)" Text="0" />
-                <TextBox Name="textBoxRightHeight" KeyUp="TileHeight_KeyUp" ToolTip="Right Height (Sloped Tiles Only)" Text="0" Margin="0,0,0,10" />
-                <ToggleButton Name="buttonIsPole" Click="mutexPropertyButton_Click">Is Pole</ToggleButton>
-                <ToggleButton Name="buttonIsEdge" Click="buttonIsEdge_Click">Is Edge</ToggleButton>
-                <Label Name="labelLayer" HorizontalAlignment="Center">0</Label>
-                <TextBox Name="textBoxNotes" Height="100" MaxWidth="90" TextWrapping="Wrap" AcceptsReturn="True"></TextBox>
+                <ToggleButton Name="buttonTopCollision" Click="propertyButton_Click" Visibility="Collapsed">Top Collision</ToggleButton>
+                <ToggleButton Name="buttonRightCollision" Click="propertyButton_Click" Visibility="Collapsed">Right Collision</ToggleButton>
+                <ToggleButton Name="buttonBottomCollision" Click="propertyButton_Click" Visibility="Collapsed">Bottom Collision</ToggleButton>
+                <ToggleButton Name="buttonLeftCollision" Click="propertyButton_Click" Margin="0,0,0,10" Visibility="Collapsed">Left Collision</ToggleButton>
+                <TextBox Name="textBoxLeftHeight" KeyUp="TileHeight_KeyUp" ToolTip="Left Height (Sloped Tiles Only)" Text="0" Visibility="Collapsed" />
+                <TextBox Name="textBoxRightHeight" KeyUp="TileHeight_KeyUp" ToolTip="Right Height (Sloped Tiles Only)" Text="0" Margin="0,0,0,10" Visibility="Collapsed" />
+                <ToggleButton Name="buttonIsPole" Click="mutexPropertyButton_Click" Visibility="Collapsed">Is Pole</ToggleButton>
+                <ToggleButton Name="buttonIsEdge" Click="buttonIsEdge_Click" Visibility="Collapsed">Is Edge</ToggleButton>
+                <Label Name="labelLayer" HorizontalAlignment="Center" Visibility="Collapsed">0</Label>
+                <TextBox Name="textBoxNotes" Height="100" MaxWidth="90" TextWrapping="Wrap" AcceptsReturn="True" Visibility="Collapsed"></TextBox>
             </StackPanel>
         </DockPanel>
     </ScrollViewer>

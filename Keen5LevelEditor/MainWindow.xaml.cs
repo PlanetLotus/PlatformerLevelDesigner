@@ -387,6 +387,19 @@ namespace Keen5LevelEditor {
                     }
                 }
             }
+
+            // Show properties for foreground tiles
+            buttonTopCollision.Visibility = Visibility.Visible;
+            buttonBottomCollision.Visibility = Visibility.Visible;
+            buttonLeftCollision.Visibility = Visibility.Visible;
+            buttonRightCollision.Visibility = Visibility.Visible;
+            textBoxLeftHeight.Visibility = Visibility.Visible;
+            textBoxRightHeight.Visibility = Visibility.Visible;
+            buttonIsPole.Visibility = Visibility.Visible;
+            buttonIsEdge.Visibility = Visibility.Visible;
+            labelLayer.Visibility = Visibility.Visible;
+            textBoxNotes.Visibility = Visibility.Visible;
+
             Console.WriteLine("File loaded.");
         }
 
