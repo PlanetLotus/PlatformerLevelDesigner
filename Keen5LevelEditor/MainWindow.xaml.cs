@@ -228,7 +228,7 @@ namespace Keen5LevelEditor {
                 return;
 
             if (backgroundRadio.IsChecked.HasValue && backgroundRadio.IsChecked.Value)
-                LoadBackgroundTiles();
+                LoadBackgroundTiles(openDialog.FileName);
             else if (foregroundRadio.IsChecked.HasValue && foregroundRadio.IsChecked.Value)
                 LoadForegroundTiles(openDialog.FileName);
 
@@ -439,7 +439,49 @@ namespace Keen5LevelEditor {
             Console.WriteLine("File loaded.");
         }
 
-        private void LoadBackgroundTiles() {
+        private void LoadBackgroundTiles(string fileName) {
+            using (StreamReader sr = new StreamReader(fileName)) {
+                // Exception: Get first two lines differently
+                // Line 1
+                string line = sr.ReadLine();
+                string[] line1Values = line.Split(' ');
+                levelWidthInTiles = Convert.ToInt32(line1Values[0]);
+                levelHeightInTiles = Convert.ToInt32(line1Values[1]);
+
+                textboxLevelWidth.Text = levelWidthInTiles.ToString();
+                textboxLevelHeight.Text = levelHeightInTiles.ToString();
+
+                // Line 2
+                line = sr.ReadLine();
+                Console.WriteLine(line);
+
+                setImageSource(line);
+                createTables();
+
+                int count = 0;
+
+                while ((line = sr.ReadLine()) != null) {
+                    string[] splitLine = line.Split(' ');
+
+                    if (splitLine[0].StartsWith("-")) {
+                        int skipValue = int.Parse(splitLine[0].Split('-').Last());
+                        count += skipValue;
+                        continue;
+                    }
+
+                    // Find matching source tile
+                    Tile srcTile = srcTiles.SingleOrDefault(t => t.x * tileWidth == int.Parse(splitLine[0]) && t.y * tileHeight == int.Parse(splitLine[1]));
+                    if (srcTile != null) {
+                        Button button = (Button)FindName("levelTile" + count);
+                        button.Background = new ImageBrush(srcTile.image.Source);
+
+                        placedTiles[0][count] = srcTile;
+                    }
+
+                    count++;
+                }
+            }
+
             Console.WriteLine("File loaded.");
         }
 
