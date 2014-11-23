@@ -214,10 +214,7 @@ namespace Keen5LevelEditor {
             int tileCount = finalPlacedTiles.Count(t => t != null);
             if (tileCount < 1) return;
 
-            if (backgroundRadio.IsChecked.HasValue && backgroundRadio.IsChecked.Value)
-                SaveBackgroundTiles(finalPlacedTiles);
-            else if (foregroundRadio.IsChecked.HasValue && foregroundRadio.IsChecked.Value)
-                SaveForegroundTiles(finalPlacedTiles);
+            SaveTiles(finalPlacedTiles);
         }
 
         private void loadSave_Click(object sender, RoutedEventArgs e) {
@@ -227,17 +224,12 @@ namespace Keen5LevelEditor {
             if (result != System.Windows.Forms.DialogResult.OK)
                 return;
 
-            if (backgroundRadio.IsChecked.HasValue && backgroundRadio.IsChecked.Value)
-                LoadBackgroundTiles(openDialog.FileName);
-            else if (foregroundRadio.IsChecked.HasValue && foregroundRadio.IsChecked.Value)
-                LoadForegroundTiles(openDialog.FileName);
+            LoadTiles(openDialog.FileName);
 
-            foregroundRadio.Visibility = Visibility.Collapsed;
-            backgroundRadio.Visibility = Visibility.Collapsed;
             loadImageSrcLabel.Visibility = Visibility.Visible;
         }
 
-        private void SaveForegroundTiles(List<Tile> finalPlacedTiles) {
+        private void SaveTiles(List<Tile> finalPlacedTiles) {
             string[] savePathDirs = savePath.Split('\\');
             string relativeNotesPath = "notes_" + savePathDirs.Last();
 
@@ -308,47 +300,7 @@ namespace Keen5LevelEditor {
             Console.WriteLine("File saved.");
         }
 
-        private void SaveBackgroundTiles(List<Tile> finalPlacedTiles) {
-            using (StreamWriter sw = new StreamWriter(savePath)) {
-                // File format:
-                // First line is # tiles wide, # tiles tall, # non-blank tiles
-                // Second line is src file name
-                // After that, one line per tile
-                // Each line is src x coord, src y coord 
-                // -1 indicates blank tile
-                string firstLine = levelWidthInTiles + " " + levelHeightInTiles + " " + placedTiles[0].Count(t => t != null);
-                sw.WriteLine(firstLine);
-
-                string secondLine = loadImageSrcLabel.Content.ToString();
-                sw.WriteLine(secondLine);
-
-                for (int i = 0; i < finalPlacedTiles.Count; i++) {
-                    int nullCount = 0;
-                    while (i < finalPlacedTiles.Count && finalPlacedTiles[i] == null) {
-                        nullCount++;
-                        i++;
-                    }
-
-                    if (nullCount != 0) {
-                        sw.WriteLine("-" + nullCount);
-                        nullCount = 0;
-
-                        if (i >= finalPlacedTiles.Count) break;
-                    }
-
-                    Tile tile = finalPlacedTiles[i];
-
-                    sw.WriteLine(
-                        (tileWidth * tile.x) + " " +
-                        (tileHeight * tile.y)
-                    );
-                }
-            }
-
-            Console.WriteLine("File saved.");
-        }
-
-        private void LoadForegroundTiles(string fileName) {
+        private void LoadTiles(string fileName) {
             string[] loadPathDirs = fileName.Split('\\');
             string relativeNotesPath = "notes_" + loadPathDirs.Last();
 
@@ -435,52 +387,6 @@ namespace Keen5LevelEditor {
             buttonIsEdge.Visibility = Visibility.Visible;
             labelLayer.Visibility = Visibility.Visible;
             textBoxNotes.Visibility = Visibility.Visible;
-
-            Console.WriteLine("File loaded.");
-        }
-
-        private void LoadBackgroundTiles(string fileName) {
-            using (StreamReader sr = new StreamReader(fileName)) {
-                // Exception: Get first two lines differently
-                // Line 1
-                string line = sr.ReadLine();
-                string[] line1Values = line.Split(' ');
-                levelWidthInTiles = Convert.ToInt32(line1Values[0]);
-                levelHeightInTiles = Convert.ToInt32(line1Values[1]);
-
-                textboxLevelWidth.Text = levelWidthInTiles.ToString();
-                textboxLevelHeight.Text = levelHeightInTiles.ToString();
-
-                // Line 2
-                line = sr.ReadLine();
-                Console.WriteLine(line);
-
-                setImageSource(line);
-                createTables();
-
-                int count = 0;
-
-                while ((line = sr.ReadLine()) != null) {
-                    string[] splitLine = line.Split(' ');
-
-                    if (splitLine[0].StartsWith("-")) {
-                        int skipValue = int.Parse(splitLine[0].Split('-').Last());
-                        count += skipValue;
-                        continue;
-                    }
-
-                    // Find matching source tile
-                    Tile srcTile = srcTiles.SingleOrDefault(t => t.x * tileWidth == int.Parse(splitLine[0]) && t.y * tileHeight == int.Parse(splitLine[1]));
-                    if (srcTile != null) {
-                        Button button = (Button)FindName("levelTile" + count);
-                        button.Background = new ImageBrush(srcTile.image.Source);
-
-                        placedTiles[0][count] = srcTile;
-                    }
-
-                    count++;
-                }
-            }
 
             Console.WriteLine("File loaded.");
         }
