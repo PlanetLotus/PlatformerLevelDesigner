@@ -311,12 +311,12 @@ namespace Keen5LevelEditor {
         private void SaveBackgroundTiles(List<Tile> finalPlacedTiles) {
             using (StreamWriter sw = new StreamWriter(savePath)) {
                 // File format:
-                // First line is # tiles wide, # tiles tall
+                // First line is # tiles wide, # tiles tall, # non-blank tiles
                 // Second line is src file name
                 // After that, one line per tile
                 // Each line is src x coord, src y coord 
                 // -1 indicates blank tile
-                string firstLine = levelWidthInTiles + " " + levelHeightInTiles + " ";
+                string firstLine = levelWidthInTiles + " " + levelHeightInTiles + " " + placedTiles[0].Count(t => t != null);
                 sw.WriteLine(firstLine);
 
                 string secondLine = loadImageSrcLabel.Content.ToString();
@@ -340,7 +340,7 @@ namespace Keen5LevelEditor {
 
                     sw.WriteLine(
                         (tileWidth * tile.x) + " " +
-                        (tileHeight * tile.y) + " "
+                        (tileHeight * tile.y)
                     );
                 }
             }
