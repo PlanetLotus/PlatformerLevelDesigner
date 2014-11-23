@@ -22,7 +22,7 @@
                     <Label Name="loadImageSrcLabel" Visibility="Collapsed">Filename</Label>
                 </StackPanel>
             </StackPanel> 
-            <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible">
+            <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" MaxHeight="500" VerticalAlignment="Top">
             <StackPanel DockPanel.Dock="Left" Name="TileList" HorizontalAlignment="Center" Margin="10,0">
             </StackPanel>
             </ScrollViewer>
