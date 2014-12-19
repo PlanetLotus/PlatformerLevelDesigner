@@ -21,11 +21,16 @@ namespace Keen5LevelEditor {
         int levelHeightInTiles;
 
         Tile selectedTile;
+        LocationData selectedLocation;
         Button selectedButton;
+
+        Button selectedGameboardButton = null;
+        int? selectedGameboardButtonIndex = null;
 
         BitmapImage src;
         List<Tile> srcTiles;
         List<List<Tile>> placedTiles;
+        List<LocationData> locations;
         int numLayers = 2;
 
         string savePath;
@@ -56,18 +61,18 @@ namespace Keen5LevelEditor {
             int tilesWide = src.PixelWidth / tileWidth;
             int tilesTall = src.PixelHeight / tileHeight;
 
-            for (int i=0; i<tilesTall; i++) {
+            for (int i = 0; i < tilesTall; i++) {
                 // Add "row"
                 StackPanel stackPanel = new StackPanel() { Orientation = Orientation.Horizontal };
 
-                for (int j=0; j<tilesWide; j++) {
+                for (int j = 0; j < tilesWide; j++) {
                     // Create image
-                    CroppedBitmap crop = new CroppedBitmap(src, new Int32Rect(j*tileWidth, i*tileHeight, tileWidth, tileHeight));
+                    CroppedBitmap crop = new CroppedBitmap(src, new Int32Rect(j * tileWidth, i * tileHeight, tileWidth, tileHeight));
                     Tile tile = new Tile(crop, j, i);
                     srcTiles.Add(tile);
 
                     // Create button with image as background
-                    string name = "tile" + (srcTiles.Count-1).ToString();
+                    string name = "tile" + (srcTiles.Count - 1).ToString();
                     Button button = new Button() { Width = tileWidth, Height = tileHeight, Name = name };
                     ImageBrush brush = new ImageBrush();
                     brush.ImageSource = tile.image.Source;
@@ -92,20 +97,25 @@ namespace Keen5LevelEditor {
 
             placedTiles = new List<List<Tile>>(numLayers);
 
+            // Initialize Locations
+            locations = new List<LocationData>(levelWidthInTiles * levelHeightInTiles);
+            for (int i = 0; i < locations.Capacity; i++)
+                locations.Add(new LocationData());
+
             // Initialize the inner lists
             for (int i = 0; i < numLayers; i++)
                 placedTiles.Add(new List<Tile>(levelWidthInTiles * levelHeightInTiles));
 
             int tileCount = 0;
 
-            for (int i=0; i<levelHeightInTiles; i++) {
+            for (int i = 0; i < levelHeightInTiles; i++) {
                 // Add "row"
                 StackPanel stackPanel = new StackPanel() { Orientation = Orientation.Horizontal };
 
-                for (int j=0; j<levelWidthInTiles; j++) {
+                for (int j = 0; j < levelWidthInTiles; j++) {
                     // Create button
-                    string name = "levelTile" +  tileCount.ToString();
-                    Button button = new Button() { Width = tileWidth, Height = tileHeight, Name = name };
+                    string name = "levelTile" + tileCount.ToString();
+                    Button button = new Button() { Width = tileWidth, Height = tileHeight, Name = name, Foreground = Brushes.Red };
                     button.Click += tilePlacer_Click;
                     this.RegisterName(name, button);
 
@@ -136,14 +146,14 @@ namespace Keen5LevelEditor {
             Button tileSelectorButton = (Button)sender;
 
             // Find tile associated with button
-            int tileIndex = Convert.ToInt32(tileSelectorButton.Name.Split(new [] {"tile"}, StringSplitOptions.None)[1]);
+            int tileIndex = Convert.ToInt32(tileSelectorButton.Name.Split(new[] { "tile" }, StringSplitOptions.None)[1]);
             Tile clickedTile = srcTiles[tileIndex];
 
             // Before changing tiles, save current tile's notes if they exist
             if (selectedTile != null && textBoxNotes.Text.Trim() != "") {
                 selectedTile.notes = textBoxNotes.Text.Trim();
             }
-            
+
             // Toggle selection of tile and button
             if (selectedTile == null || selectedTile != clickedTile) {
                 if (selectedButton != null) selectedButton.BorderBrush = Brushes.Green;
@@ -171,20 +181,57 @@ namespace Keen5LevelEditor {
         }
 
         private void tilePlacer_Click(object sender, RoutedEventArgs e) {
-            if (selectedTile == null) return;
+            selectedGameboardButton = (Button)sender;
+            selectedGameboardButtonIndex = Convert.ToInt32(selectedGameboardButton.Name.Split(new[] { "levelTile" }, StringSplitOptions.None)[1]);
+            selectedLocation = locations[selectedGameboardButtonIndex.Value];
+
+            noUnit.IsChecked = selectedLocation.unit == UnitEnum.None;
+            keen.IsChecked = selectedLocation.unit == UnitEnum.Keen;
+            sparky.IsChecked = selectedLocation.unit == UnitEnum.Sparky;
+            ampton.IsChecked = selectedLocation.unit == UnitEnum.Ampton;
+            noItem.IsChecked = selectedLocation.item == ItemEnum.None;
+
+            if (selectedTile == null || !radioPlaceTiles.IsChecked.Value) return;
 
             // Show image in button
-            Button tilePlacerButton = (Button)sender;
-            int buttonIndex = Convert.ToInt32(tilePlacerButton.Name.Split(new [] { "levelTile" }, StringSplitOptions.None)[1]);
-
-            if (tilePlacerButton.Background != null && tilePlacerButton.Background == selectedButton.Background) {
+            if (selectedGameboardButton.Background != null && selectedGameboardButton.Background == selectedButton.Background) {
                 // Clear tile
-                tilePlacerButton.ClearValue(Button.BackgroundProperty);
-                placedTiles[selectedTile.layer][buttonIndex] = null;
+                selectedGameboardButton.ClearValue(Button.BackgroundProperty);
+                placedTiles[selectedTile.layer][selectedGameboardButtonIndex.Value] = null;
             } else {
                 // Assign tile
-                tilePlacerButton.Background = selectedButton.Background;
-                placedTiles[selectedTile.layer][buttonIndex] = selectedTile;
+                selectedGameboardButton.Background = selectedButton.Background;
+                placedTiles[selectedTile.layer][selectedGameboardButtonIndex.Value] = selectedTile;
+            }
+        }
+
+        private void unitPlacer_Click(object sender, RoutedEventArgs e) {
+            if (selectedGameboardButton == null || !radioSelectTiles.IsChecked.Value) return;
+
+            RadioButton unitSelector = (RadioButton)sender;
+
+            selectedLocation.unit = (UnitEnum)Enum.Parse(typeof(UnitEnum), unitSelector.Content.ToString());
+
+            if (unitSelector.Content.ToString() != "None") {
+                selectedGameboardButton.BorderBrush = Brushes.Green;
+                selectedGameboardButton.Content = unitSelector.Content;
+            } else {
+                selectedGameboardButton.Content = "";
+            }
+        }
+
+        private void itemPlacer_Click(object sender, RoutedEventArgs e) {
+            if (selectedGameboardButton == null) return;
+
+            RadioButton itemSelector = (RadioButton)sender;
+
+            selectedLocation.item = (ItemEnum)Enum.Parse(typeof(ItemEnum), itemSelector.Content.ToString());
+
+            if (itemSelector.Content.ToString() != "None") {
+                selectedGameboardButton.BorderBrush = Brushes.Green;
+                selectedGameboardButton.Content = itemSelector.Content;
+            } else {
+                selectedGameboardButton.Content = "";
             }
         }
 
@@ -213,6 +260,11 @@ namespace Keen5LevelEditor {
             // Calculate number of non-blank tiles
             int tileCount = finalPlacedTiles.Count(t => t != null);
             if (tileCount < 1) return;
+
+            if (finalPlacedTiles.Count != locations.Count) {
+                Console.WriteLine(string.Format("Locations count ({0}) does not match FinalPlacedTiles count ({1})! Cancelling save...", locations.Count, finalPlacedTiles.Count));
+                return;
+            }
 
             SaveTiles(finalPlacedTiles);
         }
@@ -271,6 +323,7 @@ namespace Keen5LevelEditor {
                         }
 
                         Tile tile = finalPlacedTiles[i];
+                        LocationData location = locations[i];
 
                         // Determine mutex property value
                         int mutexProperty = 0;
@@ -288,7 +341,9 @@ namespace Keen5LevelEditor {
                             Convert.ToInt32(tile.leftCollision) + " " +
                             Convert.ToInt32(tile.isEdge) + " " +
                             mutexProperty + " " +
-                            tile.layer
+                            tile.layer + " " +
+                            (int)location.unit + " " +
+                            (int)location.item
                         );
 
                         sw2.WriteLine(
@@ -343,15 +398,39 @@ namespace Keen5LevelEditor {
                             continue;
                         }
 
+                        Button button = (Button)FindName("levelTile" + count);
+
+                        UnitEnum unit = UnitEnum.None;
+                        ItemEnum item = ItemEnum.None;
+
+                        if (splitLine.Length >= 13) {
+                            unit = (UnitEnum)Enum.Parse(typeof(UnitEnum), splitLine[11]);
+                            item = (ItemEnum)Enum.Parse(typeof(ItemEnum), splitLine[12]);
+                        }
+
+                        // If has unit or item, indicate this via string in the button
+                        if (unit != UnitEnum.None) {
+                            button.Content = unit.ToString();
+                            button.Foreground = Brushes.Red;
+                        }
+                        if (item != ItemEnum.None) {
+                            button.Content = item.ToString();
+                            button.Foreground = Brushes.Red;
+                        }
+
+                        // Set location properties
+                        LocationData location = locations[count];
+                        if (location != null) {
+                            location.unit = unit;
+                            location.item = item;
+                        }
+
                         // Find matching source tile
                         Tile srcTile = srcTiles.SingleOrDefault(t => t.x * tileWidth == int.Parse(splitLine[0]) && t.y * tileHeight == int.Parse(splitLine[1]));
                         if (srcTile != null) {
                             int layer = int.Parse(splitLine[10].ToString());
 
-                            Button button = (Button)FindName("levelTile" + count);
                             button.Background = new ImageBrush(srcTile.image.Source);
-
-                            if (splitLine.Count() != 11) continue;
 
                             srcTile.leftHeight = int.Parse(splitLine[2]);
                             srcTile.rightHeight = int.Parse(splitLine[3]);
@@ -375,18 +454,6 @@ namespace Keen5LevelEditor {
                     }
                 }
             }
-
-            // Show properties for foreground tiles
-            buttonTopCollision.Visibility = Visibility.Visible;
-            buttonBottomCollision.Visibility = Visibility.Visible;
-            buttonLeftCollision.Visibility = Visibility.Visible;
-            buttonRightCollision.Visibility = Visibility.Visible;
-            textBoxLeftHeight.Visibility = Visibility.Visible;
-            textBoxRightHeight.Visibility = Visibility.Visible;
-            buttonIsPole.Visibility = Visibility.Visible;
-            buttonIsEdge.Visibility = Visibility.Visible;
-            labelLayer.Visibility = Visibility.Visible;
-            textBoxNotes.Visibility = Visibility.Visible;
 
             Console.WriteLine("File loaded.");
         }
@@ -527,6 +594,19 @@ namespace Keen5LevelEditor {
 
             selectedTile.isEdge = selectedTile.isEdge == true ? false : true;
             buttonIsEdge.IsChecked = selectedTile.isEdge == true ? true : false;
+        }
+
+        private void toggleTileMode_Click(object sender, RoutedEventArgs e) {
+            // This event fires AFTER the radio value switches, so the clicked value is the value we need to switch to
+            // This also assumes the IsChecked field is never null because it's enabled by default
+
+            if (radioPlaceTiles.IsChecked.Value) {
+                // This is the default mode. This refers to selecting a tile from the left list and placing tiles on the right.
+                selectedLocation = null;
+            } else if (radioSelectTiles.IsChecked.Value) {
+                // This is the optional mode. This refers to not being able to select a tile from the left list, but instead selecting tiles on the right.
+                selectedTile = null;
+            }
         }
     }
 }
