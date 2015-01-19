@@ -308,8 +308,12 @@ namespace Keen5LevelEditor {
                     // Each line is src x coord, src y coord, leftHeight, rightHeight, then 1 or 0 for collision top, right, bottom, left 
                     // -1 indicates blank tile
                     string firstLine = levelWidthInTiles + " " + levelHeightInTiles + " ";
-                    for (int i = 0; i < numLayers; i++)
-                        firstLine += placedTiles[i].Count(t => t != null) + " ";
+                    for (int i = 0; i < numLayers; i++) {
+                        firstLine += placedTiles[i].Count(t => t != null);
+                        if (i != numLayers - 1)
+                            firstLine += " ";
+                    }
+
                     sw.WriteLine(firstLine);
                     sw.WriteLine(loadImageSrcLabel.Content);
 
