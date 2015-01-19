@@ -169,6 +169,7 @@ namespace Keen5LevelEditor {
                 buttonBottomCollision.IsChecked = selectedTile.bottomCollision == true ? true : false;
                 buttonLeftCollision.IsChecked = selectedTile.leftCollision == true ? true : false;
                 buttonIsPole.IsChecked = selectedTile.isPole == true ? true : false;
+                buttonIsPoleEdge.IsChecked = selectedTile.isPoleEdge == true ? true : false;
                 buttonIsEdge.IsChecked = selectedTile.isEdge == true ? true : false;
                 labelLayer.Content = selectedTile.layer;
                 textBoxNotes.Text = selectedTile.notes;
@@ -333,6 +334,8 @@ namespace Keen5LevelEditor {
                         int mutexProperty = 0;
                         if (tile.isPole)
                             mutexProperty = 1;
+                        else if (tile.isPoleEdge)
+                            mutexProperty = 2;
 
                         sw.WriteLine(
                             (tileWidth * tile.x) + " " +
@@ -450,6 +453,8 @@ namespace Keen5LevelEditor {
                             string mutexProperty = splitLine[9].ToString();
                             if (mutexProperty == "1")
                                 srcTile.isPole = true;
+                            else if (mutexProperty == "2")
+                                srcTile.isPoleEdge = true;
 
                             placedTiles[layer][count] = srcTile;
                         }
@@ -494,6 +499,22 @@ namespace Keen5LevelEditor {
                     buttonIsPole.IsChecked = selectedTile.isPole == true ? true : false;
 
                     // Reset other mutex properties
+                    if (selectedTile.isPole) {
+                        selectedTile.isPoleEdge = false;
+                        buttonIsPoleEdge.IsChecked = false;
+                    }
+
+                    break;
+                case "buttonIsPoleEdge":
+                    selectedTile.isPoleEdge = selectedTile.isPoleEdge == true ? false : true;
+                    buttonIsPoleEdge.IsChecked = selectedTile.isPoleEdge == true ? true : false;
+
+                    // Reset other mutex properties
+                    if (selectedTile.isPoleEdge) {
+                        selectedTile.isPole = false;
+                        buttonIsPole.IsChecked = false;
+                    }
+
                     break;
             }
         }
