@@ -190,6 +190,10 @@ namespace Keen5LevelEditor {
             sparky.IsChecked = selectedLocation.unit == UnitEnum.Sparky;
             ampton.IsChecked = selectedLocation.unit == UnitEnum.Ampton;
             noItem.IsChecked = selectedLocation.item == ItemEnum.None;
+            ammo.IsChecked = selectedLocation.item == ItemEnum.Ammo;
+            gum.IsChecked = selectedLocation.item == ItemEnum.Gum;
+            marshmellow.IsChecked = selectedLocation.item == ItemEnum.Marshmellow;
+            vitalin.IsChecked = selectedLocation.item == ItemEnum.Vitalin;
 
             if (selectedTile == null || !radioPlaceTiles.IsChecked.Value) return;
 

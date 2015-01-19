@@ -46,6 +46,10 @@
                 <RadioButton GroupName="UnitSelector" Name="sparky" Margin="5,0" Click="unitPlacer_Click">Sparky</RadioButton>
                 <RadioButton GroupName="UnitSelector" Name="ampton" Margin="5,0" Click="unitPlacer_Click">Ampton</RadioButton>
                 <RadioButton GroupName="ItemSelector" Name="noItem" IsChecked="True" Margin="5,8,5,0" Click="itemPlacer_Click">None</RadioButton>
+                <RadioButton GroupName="ItemSelector" Name="ammo" Margin="5,0" Click="itemPlacer_Click">Ammo</RadioButton>
+                <RadioButton GroupName="ItemSelector" Name="gum" Margin="5,0" Click="itemPlacer_Click">Gum</RadioButton>
+                <RadioButton GroupName="ItemSelector" Name="marshmellow" Margin="5,0" Click="itemPlacer_Click">Marshmellow</RadioButton>
+                <RadioButton GroupName="ItemSelector" Name="vitalin" Margin="5,0" Click="itemPlacer_Click">Vitalin</RadioButton>
                 <TextBox Name="textBoxNotes" Height="100" MaxWidth="90" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,8,0,0"></TextBox>
             </StackPanel>
         </DockPanel>
