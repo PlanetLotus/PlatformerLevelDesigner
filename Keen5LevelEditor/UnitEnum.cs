@@ -3,6 +3,7 @@
         None = 0,
         Keen,
         Sparky,
-        Ampton
+        Ampton,
+        MovingPlatform
     }
 }

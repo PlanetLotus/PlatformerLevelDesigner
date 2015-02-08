@@ -31,6 +31,8 @@ namespace Keen5LevelEditor {
         List<Tile> srcTiles;
         List<List<Tile>> placedTiles;
         List<LocationData> locations;
+        List<MovingPlatform> platforms = new List<MovingPlatform>();
+        MovingPlatform selectedPlatform = null;
         int numLayers = 2;
 
         string savePath;
@@ -115,7 +117,7 @@ namespace Keen5LevelEditor {
                 for (int j = 0; j < levelWidthInTiles; j++) {
                     // Create button
                     string name = "levelTile" + tileCount.ToString();
-                    Button button = new Button() { Width = tileWidth, Height = tileHeight, Name = name, Foreground = Brushes.Red };
+                    Button button = new Button() { Width = tileWidth, Height = tileHeight, Name = name, Foreground = Brushes.Red, Content = "" };
                     button.Click += tilePlacer_Click;
                     this.RegisterName(name, button);
 
@@ -183,18 +185,35 @@ namespace Keen5LevelEditor {
 
         private void tilePlacer_Click(object sender, RoutedEventArgs e) {
             selectedGameboardButton = (Button)sender;
-            selectedGameboardButtonIndex = Convert.ToInt32(selectedGameboardButton.Name.Split(new[] { "levelTile" }, StringSplitOptions.None)[1]);
+            selectedGameboardButtonIndex = GetGameboardButtonIndex(selectedGameboardButton);
             selectedLocation = locations[selectedGameboardButtonIndex.Value];
 
             noUnit.IsChecked = selectedLocation.unit == UnitEnum.None;
             keen.IsChecked = selectedLocation.unit == UnitEnum.Keen;
             sparky.IsChecked = selectedLocation.unit == UnitEnum.Sparky;
             ampton.IsChecked = selectedLocation.unit == UnitEnum.Ampton;
+            platform.IsChecked = selectedLocation.unit == UnitEnum.MovingPlatform;
             noItem.IsChecked = selectedLocation.item == ItemEnum.None;
             ammo.IsChecked = selectedLocation.item == ItemEnum.Ammo;
             gum.IsChecked = selectedLocation.item == ItemEnum.Gum;
             marshmellow.IsChecked = selectedLocation.item == ItemEnum.Marshmellow;
             vitalin.IsChecked = selectedLocation.item == ItemEnum.Vitalin;
+
+            // If user switches off of place platform mode, hide it
+            if (!radioPlacePlatformDest.IsChecked.HasValue || !radioPlacePlatformDest.IsChecked.Value) {
+                radioPlacePlatformDest.Visibility = Visibility.Collapsed;
+                selectedPlatform = null;
+            }
+
+            // If a platform is at this location, allow destination placements
+            if (selectedLocation.unit == UnitEnum.MovingPlatform) {
+                radioPlacePlatformDest.Visibility = Visibility.Visible;
+                selectedPlatform = platforms.SingleOrDefault(p => p.buttonIndex == selectedGameboardButtonIndex);
+            }
+
+            if (radioPlacePlatformDest.IsChecked.HasValue && radioPlacePlatformDest.IsChecked.Value && selectedPlatform != null) {
+                SetPlatformDestination(selectedPlatform, selectedGameboardButton, selectedGameboardButtonIndex.Value);
+            }
 
             if (selectedTile == null || !radioPlaceTiles.IsChecked.Value) return;
 
@@ -210,6 +229,46 @@ namespace Keen5LevelEditor {
             }
         }
 
+        private MovingPlatform GetOrCreatePlatform(int buttonIndex) {
+            MovingPlatform platform = platforms.SingleOrDefault(p => p.buttonIndex == buttonIndex);
+
+            if (platform != null)
+                return platform;
+
+            Tuple<int, int> platformCoord = GetCoordinatesFromButtonIndex(buttonIndex);
+
+            return new MovingPlatform {
+                buttonIndex = buttonIndex,
+                startX = platformCoord.Item1,
+                startY = platformCoord.Item2,
+                color = MovingPlatformColorEnum.Pink,
+                tileDests = new List<Tuple<int, int>>()
+            };
+        }
+
+        private void SetPlatformDestination(MovingPlatform platform, Button button, int buttonIndex) {
+            Tuple<int, int> coord = GetCoordinatesFromButtonIndex(buttonIndex);
+
+            if (platform.tileDests.Contains(coord)) {
+                platform.tileDests.Remove(coord);
+                button.Content = "";
+            } else {
+                platform.tileDests.Add(coord);
+                button.Content = "D" + selectedPlatform.tileDests.Count.ToString();
+            }
+
+        }
+
+        private Tuple<int, int> GetCoordinatesFromButtonIndex(int buttonIndex) {
+            int row = buttonIndex / levelWidthInTiles;
+            int col = buttonIndex - row * levelWidthInTiles;
+
+            int xCoord = row * tileHeight;
+            int yCoord = col * tileHeight;
+
+            return new Tuple<int, int>(xCoord, yCoord);
+        }
+
         private void unitPlacer_Click(object sender, RoutedEventArgs e) {
             if (selectedGameboardButton == null || !radioSelectTiles.IsChecked.Value) return;
 
@@ -217,9 +276,22 @@ namespace Keen5LevelEditor {
 
             selectedLocation.unit = (UnitEnum)Enum.Parse(typeof(UnitEnum), unitSelector.Content.ToString());
 
+            // If switching from Moving Platform to anything else, remove the platform object from the list
+            if (selectedGameboardButton.Content.ToString() == UnitEnum.MovingPlatform.ToString() && unitSelector.Content.ToString() != UnitEnum.MovingPlatform.ToString()) {
+                selectedGameboardButtonIndex = GetGameboardButtonIndex(selectedGameboardButton);
+                MovingPlatform platform = platforms.SingleOrDefault(p => p.buttonIndex == selectedGameboardButtonIndex);
+                platforms.Remove(platform);
+            }
+
             if (unitSelector.Content.ToString() != "None") {
                 selectedGameboardButton.BorderBrush = Brushes.Green;
                 selectedGameboardButton.Content = unitSelector.Content;
+
+                if (unitSelector.Content.ToString() == UnitEnum.MovingPlatform.ToString()) {
+                    // Create platform if it doesn't exist here already
+                    selectedPlatform = GetOrCreatePlatform(GetGameboardButtonIndex(selectedGameboardButton));
+                    radioPlacePlatformDest.Visibility = Visibility.Visible;
+                }
             } else {
                 selectedGameboardButton.Content = "";
             }
@@ -636,6 +708,10 @@ namespace Keen5LevelEditor {
                 // This is the optional mode. This refers to not being able to select a tile from the left list, but instead selecting tiles on the right.
                 selectedTile = null;
             }
+        }
+
+        private int GetGameboardButtonIndex(Button button) {
+            return Convert.ToInt32(selectedGameboardButton.Name.Split(new[] { "levelTile" }, StringSplitOptions.None)[1]);
         }
     }
 }
