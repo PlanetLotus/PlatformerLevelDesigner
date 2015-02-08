@@ -269,6 +269,13 @@ namespace Keen5LevelEditor {
             return new Tuple<int, int>(xCoord, yCoord);
         }
 
+        private int GetButtonIndexFromCoordinates(Tuple<int, int> coord) {
+            int row = coord.Item1 / tileHeight;
+            int col = coord.Item2 / tileHeight;
+
+            return col + row * levelWidthInTiles;
+        }
+
         private void unitPlacer_Click(object sender, RoutedEventArgs e) {
             if (selectedGameboardButton == null || !radioSelectTiles.IsChecked.Value) return;
 
@@ -290,6 +297,7 @@ namespace Keen5LevelEditor {
                 if (unitSelector.Content.ToString() == UnitEnum.MovingPlatform.ToString()) {
                     // Create platform if it doesn't exist here already
                     selectedPlatform = GetOrCreatePlatform(GetGameboardButtonIndex(selectedGameboardButton));
+                    platforms.Add(selectedPlatform);
                     radioPlacePlatformDest.Visibility = Visibility.Visible;
                 }
             } else {
@@ -413,7 +421,7 @@ namespace Keen5LevelEditor {
                         else if (tile.isPoleEdge)
                             mutexProperty = 2;
 
-                        sw.WriteLine(
+                        string line =
                             (tileWidth * tile.x) + " " +
                             (tileHeight * tile.y) + " " +
                             tile.leftHeight + " " +
@@ -426,8 +434,16 @@ namespace Keen5LevelEditor {
                             mutexProperty + " " +
                             tile.layer + " " +
                             (int)location.unit + " " +
-                            (int)location.item
-                        );
+                            (int)location.item;
+
+                        if (location.unit == UnitEnum.MovingPlatform) {
+                            MovingPlatform platform = platforms.Single(p => p.buttonIndex == i);
+
+                            foreach (Tuple<int, int> dest in platform.tileDests)
+                                line += " " + dest.Item1 + " " + dest.Item2;
+                        }
+
+                        sw.WriteLine(line);
 
                         sw2.WriteLine(
                             tile.notes
@@ -494,11 +510,25 @@ namespace Keen5LevelEditor {
                         // If has unit or item, indicate this via string in the button
                         if (unit != UnitEnum.None) {
                             button.Content = unit.ToString();
-                            button.Foreground = Brushes.Red;
+
+                            // If moving platform, set up that object as well
+                            if (unit == UnitEnum.MovingPlatform) {
+                                MovingPlatform platform = GetOrCreatePlatform(count);
+
+                                // Read in destinations from the last expected property to the end of the line
+                                for (int i = 13; i < splitLine.Length; i += 2)
+                                    platform.tileDests.Add(new Tuple<int, int>(int.Parse(splitLine[i]), int.Parse(splitLine[i + 1])));
+
+                                for (int i = 0; i < platform.tileDests.Count; i++) {
+                                    Button destButton = (Button)FindName("levelTile" + GetButtonIndexFromCoordinates(platform.tileDests[i]));
+                                    destButton.Content = "D" + (i + 1);
+                                }
+
+                                platforms.Add(platform);
+                            }
                         }
                         if (item != ItemEnum.None) {
                             button.Content = item.ToString();
-                            button.Foreground = Brushes.Red;
                         }
 
                         // Set location properties
