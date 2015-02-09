@@ -263,8 +263,8 @@ namespace Keen5LevelEditor {
             int row = buttonIndex / levelWidthInTiles;
             int col = buttonIndex - row * levelWidthInTiles;
 
-            int xCoord = row * tileHeight;
-            int yCoord = col * tileHeight;
+            int xCoord = col * tileHeight;
+            int yCoord = row * tileHeight;
 
             return new Tuple<int, int>(xCoord, yCoord);
         }
