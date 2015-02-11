@@ -206,7 +206,7 @@ namespace Keen5LevelEditor {
             }
 
             // If a platform is at this location, allow destination placements
-            if (selectedLocation.unit == UnitEnum.MovingPlatform) {
+            if (radioSelectTiles.IsChecked.HasValue && radioSelectTiles.IsChecked.Value && selectedLocation.unit == UnitEnum.MovingPlatform) {
                 radioPlacePlatformDest.Visibility = Visibility.Visible;
                 selectedPlatform = platforms.SingleOrDefault(p => p.buttonIndex == selectedGameboardButtonIndex);
             }
@@ -270,8 +270,8 @@ namespace Keen5LevelEditor {
         }
 
         private int GetButtonIndexFromCoordinates(Tuple<int, int> coord) {
-            int row = coord.Item1 / tileHeight;
-            int col = coord.Item2 / tileHeight;
+            int col = coord.Item1 / tileHeight;
+            int row = coord.Item2 / tileHeight;
 
             return col + row * levelWidthInTiles;
         }
