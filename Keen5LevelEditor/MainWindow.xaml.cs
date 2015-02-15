@@ -19,6 +19,7 @@ namespace Keen5LevelEditor {
         int tileHeight;
         int levelWidthInTiles;
         int levelHeightInTiles;
+        int numLayers;
 
         Tile selectedTile;
         LocationData selectedLocation;
@@ -33,7 +34,6 @@ namespace Keen5LevelEditor {
         List<LocationData> locations;
         List<MovingPlatform> platforms = new List<MovingPlatform>();
         MovingPlatform selectedPlatform = null;
-        int numLayers = 2;
 
         string savePath;
 
@@ -58,6 +58,16 @@ namespace Keen5LevelEditor {
 
             tileWidth = Convert.ToInt32(textboxTileWidth.Text);
             tileHeight = Convert.ToInt32(textboxTileHeight.Text);
+            numLayers = int.Parse(textboxNumLayers.Text);
+
+            if (numLayers < 1)
+                numLayers = 1;
+
+            // Populate dropdown list of layers
+            for (int i = 0; i < numLayers; i++) {
+                layerSelector.Items.Add(new ComboBoxItem { Name = "selectLayer" + i, Content = "Layer " + i });
+            }
+            layerSelector.SelectedIndex = 0;
 
             // Create a table of tiles to choose from
             int tilesWide = src.PixelWidth / tileWidth;
@@ -110,26 +120,29 @@ namespace Keen5LevelEditor {
 
             int tileCount = 0;
 
-            for (int i = 0; i < levelHeightInTiles; i++) {
-                // Add "row"
-                StackPanel stackPanel = new StackPanel() { Orientation = Orientation.Horizontal };
+            for (int i = 0; i < numLayers; i++) {
+                for (int j = 0; j < levelHeightInTiles; j++) {
+                    // Add "row"
+                    StackPanel stackPanel = new StackPanel() { Orientation = Orientation.Horizontal };
 
-                for (int j = 0; j < levelWidthInTiles; j++) {
-                    // Create button
-                    string name = "levelTile" + tileCount.ToString();
-                    Button button = new Button() { Width = tileWidth, Height = tileHeight, Name = name, Foreground = Brushes.Red, Content = "" };
-                    button.Click += tilePlacer_Click;
-                    this.RegisterName(name, button);
+                    for (int k = 0; k < levelWidthInTiles; k++) {
+                        // Create button
+                        string name = "levelTile" + tileCount.ToString();
+                        Button button = new Button() { Width = tileWidth, Height = tileHeight, Name = name, Foreground = Brushes.Red, Content = "" };
+                        button.Click += tilePlacer_Click;
+                        this.RegisterName(name, button);
 
-                    // Add button to stackpanel
-                    stackPanel.Children.Add(button);
+                        // Add first layer of buttons to stackpanel
+                        if (i == 0)
+                            stackPanel.Children.Add(button);
 
-                    foreach (List<Tile> listOfTiles in placedTiles)
-                        listOfTiles.Add(null);
-                    tileCount++;
+                        foreach (List<Tile> listOfTiles in placedTiles)
+                            listOfTiles.Add(null);
+                        tileCount++;
+                    }
+
+                    Body.Children.Add(stackPanel);
                 }
-
-                Body.Children.Add(stackPanel);
             }
         }
 

@@ -16,12 +16,16 @@
                     <TextBox Name="textboxTileHeight" Width="40" Text="32" ToolTip="Tile Height"></TextBox>
                     <TextBox Name="textboxLevelWidth" Width="40" ToolTip="Level Width"></TextBox>
                     <TextBox Name="textboxLevelHeight" Width="40" ToolTip="Level Height"></TextBox>
-                    <RadioButton GroupName="TileModeGroup" Name="radioPlaceTiles" IsChecked="True" Click="toggleTileMode_Click">Place Tiles</RadioButton>
-                    <RadioButton GroupName="TileModeGroup" Name="radioSelectTiles" Click="toggleTileMode_Click">Select Tiles</RadioButton>
-                    <RadioButton GroupName="TileModeGroup" Name="radioPlacePlatformDest" Visibility="Collapsed" Click="toggleTileMode_Click">Place Platform Destination</RadioButton>
+                    <TextBox Name="textboxNumLayers" Width="40" Text="2" ToolTip="Number of Tile Layers"></TextBox>
                     <Button Name="loadSave" Click="loadSave_Click">Load Saved File</Button>
                     <Button Name="loadImageSrc" Click="loadImageSrc_Click">Load Image Source</Button>
                     <Label Name="loadImageSrcLabel" Visibility="Collapsed">Filename</Label>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton GroupName="TileModeGroup" Name="radioPlaceTiles" IsChecked="True" Margin="5,0" Click="toggleTileMode_Click">Place Tiles</RadioButton>
+                    <RadioButton GroupName="TileModeGroup" Name="radioSelectTiles" Margin="5,0" Click="toggleTileMode_Click">Select Tiles</RadioButton>
+                    <RadioButton GroupName="TileModeGroup" Name="radioPlacePlatformDest" Visibility="Collapsed" Margin="5,0" Click="toggleTileMode_Click">Place Platform Destination</RadioButton>
+                    <ComboBox Name="layerSelector"></ComboBox>
                 </StackPanel>
             </StackPanel> 
             <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" MaxHeight="500" VerticalAlignment="Top">
