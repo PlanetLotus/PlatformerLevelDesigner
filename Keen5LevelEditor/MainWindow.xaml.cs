@@ -542,6 +542,7 @@ namespace Keen5LevelEditor {
 
                 textboxLevelWidth.Text = levelWidthInTiles.ToString();
                 textboxLevelHeight.Text = levelHeightInTiles.ToString();
+                textboxNumLayers.Text = (line1Values.Length - 2).ToString();
 
                 // Line 2
                 line = sr.ReadLine();
@@ -596,7 +597,8 @@ namespace Keen5LevelEditor {
                     // If has unit or item, indicate this via string in the button
                     // For now, let's assume that the best button to indicate this in is in the foremost layer
                     if (unit != UnitEnum.None) {
-                        buttonsAtLocation.Last().Content = unit.ToString();
+                        foreach(Button button in buttonsAtLocation)
+                            button.Content = unit.ToString();
 
                         int numNullsAtLocation = numLayers - tilesAtLocation.Count(tile => tile != null);
                         int numNotNullsAtLocation = numLayers - numNullsAtLocation;
@@ -619,7 +621,8 @@ namespace Keen5LevelEditor {
                         }
                     }
                     if (item != ItemEnum.None) {
-                        buttonsAtLocation.Last().Content = item.ToString();
+                        foreach(Button button in buttonsAtLocation)
+                            button.Content = item.ToString();
                     }
 
                     // Set location properties
@@ -639,16 +642,16 @@ namespace Keen5LevelEditor {
                     Tile srcTile = tilesAtLocation.Where(t => t != null).Last();
                     int layer = tilesAtLocation.IndexOf(srcTile);
 
-                    srcTile.leftHeight = int.Parse(splitLine[2]);
-                    srcTile.rightHeight = int.Parse(splitLine[3]);
-                    srcTile.topCollision = splitLine[4].ToString() == "1" ? true : false;
-                    srcTile.rightCollision = splitLine[5].ToString() == "1" ? true : false;
-                    srcTile.bottomCollision = splitLine[6].ToString() == "1" ? true : false;
-                    srcTile.leftCollision = splitLine[7].ToString() == "1" ? true : false;
-                    srcTile.isEdge = splitLine[8].ToString() == "1" ? true : false;
+                    srcTile.leftHeight = int.Parse(splitLine[0]);
+                    srcTile.rightHeight = int.Parse(splitLine[1]);
+                    srcTile.topCollision = splitLine[2].ToString() == "1" ? true : false;
+                    srcTile.rightCollision = splitLine[3].ToString() == "1" ? true : false;
+                    srcTile.bottomCollision = splitLine[4].ToString() == "1" ? true : false;
+                    srcTile.leftCollision = splitLine[5].ToString() == "1" ? true : false;
+                    srcTile.isEdge = splitLine[6].ToString() == "1" ? true : false;
 
                     // Mutex properties will default to false, so only need to think about setting them to true
-                    string mutexProperty = splitLine[9].ToString();
+                    string mutexProperty = splitLine[7].ToString();
                     if (mutexProperty == "1")
                         srcTile.isPole = true;
                     else if (mutexProperty == "2")
