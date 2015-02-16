@@ -25,6 +25,7 @@ namespace Keen5LevelEditor {
         LocationData selectedLocation;
         Button selectedButton;
 
+        List<List<Button>> gameboardButtons = new List<List<Button>>();
         Button selectedGameboardButton = null;
         int? selectedGameboardButtonIndex = null;
 
@@ -36,6 +37,8 @@ namespace Keen5LevelEditor {
         MovingPlatform selectedPlatform = null;
 
         string savePath;
+
+        bool isLevelLoaded = false;
 
         public MainWindow() {
             InitializeComponent();
@@ -121,6 +124,9 @@ namespace Keen5LevelEditor {
             int tileCount = 0;
 
             for (int i = 0; i < numLayers; i++) {
+                // Add list of buttons
+                gameboardButtons.Add(new List<Button>(levelHeightInTiles * levelWidthInTiles));
+
                 for (int j = 0; j < levelHeightInTiles; j++) {
                     // Add "row"
                     StackPanel stackPanel = new StackPanel() { Orientation = Orientation.Horizontal };
@@ -135,6 +141,9 @@ namespace Keen5LevelEditor {
                         // Add first layer of buttons to stackpanel
                         if (i == 0)
                             stackPanel.Children.Add(button);
+
+                        // Save reference to button
+                        gameboardButtons[i].Add(button);
 
                         foreach (List<Tile> listOfTiles in placedTiles)
                             listOfTiles.Add(null);
@@ -155,6 +164,8 @@ namespace Keen5LevelEditor {
 
             setImageSource(open_dialog.FileName);
             createTables();
+
+            isLevelLoaded = true;
         }
 
         private void tileSelector_Click(object sender, RoutedEventArgs e) {
@@ -584,6 +595,7 @@ namespace Keen5LevelEditor {
             }
 
             Console.WriteLine("File loaded.");
+            isLevelLoaded = true;
         }
 
         private void propertyButton_Click(object sender, RoutedEventArgs e) {
@@ -738,6 +750,32 @@ namespace Keen5LevelEditor {
 
             selectedTile.isEdge = selectedTile.isEdge == true ? false : true;
             buttonIsEdge.IsChecked = selectedTile.isEdge == true ? true : false;
+        }
+
+        private void layerSelector_selectionChanged(object sender, SelectionChangedEventArgs e) {
+            if (!isLevelLoaded)
+                return;
+
+            // Clear board, then populate with appropriate buttons
+            Body.Children.Clear();
+
+            int tileIndex = 0;
+
+            for (int i = 0; i < levelHeightInTiles; i++) {
+                // Add "row"
+                StackPanel stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
+
+                for (int j = 0; j < levelWidthInTiles; j++) {
+                    Button button = gameboardButtons[layerSelector.SelectedIndex][tileIndex];
+                    if (button.Parent != null)
+                        ((StackPanel)button.Parent).Children.Clear();
+
+                    stackPanel.Children.Add(button);
+                    tileIndex++;
+                }
+
+                Body.Children.Add(stackPanel);
+            }
         }
 
         private void toggleTileMode_Click(object sender, RoutedEventArgs e) {

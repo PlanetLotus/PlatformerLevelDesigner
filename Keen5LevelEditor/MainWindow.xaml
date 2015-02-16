@@ -25,7 +25,7 @@
                     <RadioButton GroupName="TileModeGroup" Name="radioPlaceTiles" IsChecked="True" Margin="5,0" Click="toggleTileMode_Click">Place Tiles</RadioButton>
                     <RadioButton GroupName="TileModeGroup" Name="radioSelectTiles" Margin="5,0" Click="toggleTileMode_Click">Select Tiles</RadioButton>
                     <RadioButton GroupName="TileModeGroup" Name="radioPlacePlatformDest" Visibility="Collapsed" Margin="5,0" Click="toggleTileMode_Click">Place Platform Destination</RadioButton>
-                    <ComboBox Name="layerSelector"></ComboBox>
+                    <ComboBox Name="layerSelector" SelectionChanged="layerSelector_selectionChanged"></ComboBox>
                 </StackPanel>
             </StackPanel> 
             <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" MaxHeight="500" VerticalAlignment="Top">
