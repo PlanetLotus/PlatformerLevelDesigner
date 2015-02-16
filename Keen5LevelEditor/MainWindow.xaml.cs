@@ -421,9 +421,9 @@ namespace Keen5LevelEditor {
                     sw.WriteLine(firstLine);
                     sw.WriteLine(loadImageSrcLabel.Content);
 
-                    for (int i = 0; i < finalPlacedTiles.Count; i++) {
+                    for (int i = 0; i < locations.Count; i++) {
                         int nullCount = 0;
-                        while (i < finalPlacedTiles.Count && finalPlacedTiles[i] == null) {
+                        while (i < locations.Count && placedTiles.All(layer => layer[i] == null)) {
                             nullCount++;
                             i++;
                         }
@@ -432,35 +432,69 @@ namespace Keen5LevelEditor {
                             sw.WriteLine("-" + nullCount);
                             nullCount = 0;
 
-                            if (i >= finalPlacedTiles.Count) break;
+                            if (i >= locations.Count) break;
                         }
 
-                        Tile tile = finalPlacedTiles[i];
-                        LocationData location = locations[i];
+                        List<Tile> tilesAtLocation = new List<Tile>(numLayers);
 
-                        // Determine mutex property value
+                        foreach (var layer in placedTiles) {
+                            if (layer[i] != null)
+                                tilesAtLocation.Add(layer[i]);
+                        }
+
+                        int leftHeight = tilesAtLocation.Any(tile => tile.leftHeight != 0)
+                            ? tilesAtLocation.First(tile => tile.leftHeight != 0).leftHeight
+                            : 0;
+
+                        int rightHeight = tilesAtLocation.Any(tile => tile.rightHeight != 0)
+                            ? tilesAtLocation.First(tile => tile.rightHeight != 0).rightHeight
+                            : 0;
+
+                        int topCollision = tilesAtLocation.Any(tile => tile.topCollision) ? 1 : 0;
+                        int rightCollision = tilesAtLocation.Any(tile => tile.rightCollision) ? 1 : 0;
+                        int bottomCollision = tilesAtLocation.Any(tile => tile.bottomCollision) ? 1 : 0;
+                        int leftCollision = tilesAtLocation.Any(tile => tile.leftCollision) ? 1 : 0;
+                        int isEdge = tilesAtLocation.Any(tile => tile.isEdge) ? 1 : 0;
+
                         int mutexProperty = 0;
-                        if (tile.isPole)
+                        if (tilesAtLocation.Any(tile => tile.isPole))
                             mutexProperty = 1;
-                        else if (tile.isPoleEdge)
+                        else if (tilesAtLocation.Any(tile => tile.isPoleEdge))
                             mutexProperty = 2;
 
-                        string line =
-                            (tileWidth * tile.x) + " " +
-                            (tileHeight * tile.y) + " " +
-                            tile.leftHeight + " " +
-                            tile.rightHeight + " " +
-                            Convert.ToInt32(tile.topCollision) + " " +
-                            Convert.ToInt32(tile.rightCollision) + " " +
-                            Convert.ToInt32(tile.bottomCollision) + " " +
-                            Convert.ToInt32(tile.leftCollision) + " " +
-                            Convert.ToInt32(tile.isEdge) + " " +
-                            mutexProperty + " " +
-                            tile.layer + " " +
-                            (int)location.unit + " " +
-                            (int)location.item;
+                        int unit = (int)locations[i].unit;
+                        int item = (int)locations[i].item;
 
-                        if (location.unit == UnitEnum.MovingPlatform) {
+                        List<string> tileSourceCoordsList = new List<string>();
+
+                        for (int j = 0; j < placedTiles.Count; j++) {
+                            if (placedTiles[j][i] == null) {
+                                tileSourceCoordsList.Add("-1");
+                                continue;
+                            }
+
+                            tileSourceCoordsList.Add(placedTiles[j][i].x.ToString());
+                            tileSourceCoordsList.Add(placedTiles[j][i].y.ToString());
+                        }
+
+                        string tileSourceCoords = string.Join(" ", tileSourceCoordsList);
+
+                        string line =
+                            leftHeight + " " +
+                            rightHeight + " " +
+                            topCollision + " " +
+                            rightCollision + " " +
+                            bottomCollision + " " +
+                            leftCollision + " " +
+                            isEdge + " " +
+                            mutexProperty + " " +
+                            unit + " " +
+                            item;
+
+                        if (tileSourceCoordsList.Any())
+                            line += " " + tileSourceCoords;
+
+                        if (locations[i].unit == UnitEnum.MovingPlatform) {
                             MovingPlatform platform = platforms.Single(p => p.buttonIndex == i);
 
                             foreach (Tuple<int, int> dest in platform.tileDests)
@@ -468,10 +502,6 @@ namespace Keen5LevelEditor {
                         }
 
                         sw.WriteLine(line);
-
-                        sw2.WriteLine(
-                            tile.notes
-                        );
                     }
                 }
             }
