@@ -197,7 +197,6 @@ namespace Keen5LevelEditor {
                 buttonIsPole.IsChecked = selectedTile.isPole == true ? true : false;
                 buttonIsPoleEdge.IsChecked = selectedTile.isPoleEdge == true ? true : false;
                 buttonIsEdge.IsChecked = selectedTile.isEdge == true ? true : false;
-                labelLayer.Content = selectedTile.layer;
                 textBoxNotes.Text = selectedTile.notes;
             } else {
                 // Deselect tile
@@ -245,11 +244,11 @@ namespace Keen5LevelEditor {
             if (selectedGameboardButton.Background != null && selectedGameboardButton.Background == selectedButton.Background) {
                 // Clear tile
                 selectedGameboardButton.ClearValue(Button.BackgroundProperty);
-                placedTiles[selectedTile.layer][selectedGameboardButtonIndex.Value] = null;
+                placedTiles[layerSelector.SelectedIndex][selectedGameboardButtonIndex.Value] = null;
             } else {
                 // Assign tile
                 selectedGameboardButton.Background = selectedButton.Background;
-                placedTiles[selectedTile.layer][selectedGameboardButtonIndex.Value] = selectedTile;
+                placedTiles[layerSelector.SelectedIndex][selectedGameboardButtonIndex.Value] = selectedTile;
             }
         }
 
@@ -472,8 +471,8 @@ namespace Keen5LevelEditor {
                             continue;
                         }
 
-                        tileSourceCoordsList.Add(placedTiles[j][i].x.ToString());
-                        tileSourceCoordsList.Add(placedTiles[j][i].y.ToString());
+                        tileSourceCoordsList.Add((placedTiles[j][i].x * tileWidth).ToString());
+                        tileSourceCoordsList.Add((placedTiles[j][i].y * tileHeight).ToString());
                     }
 
                     string tileSourceCoords = string.Join(" ", tileSourceCoordsList);
@@ -529,105 +528,130 @@ namespace Keen5LevelEditor {
             notesLoadPath += relativeNotesPath;
 
             using (StreamReader sr = new StreamReader(fileName)) {
-                using (StreamReader sr2 = new StreamReader(notesLoadPath)) {
-                    // Exception: Get first two lines differently
-                    // Line 1
-                    string line = sr.ReadLine();
-                    string[] line1Values = line.Split(' ');
-                    levelWidthInTiles = Convert.ToInt32(line1Values[0]);
-                    levelHeightInTiles = Convert.ToInt32(line1Values[1]);
+                // Exception: Get first two lines differently
+                // Line 1
+                string line = sr.ReadLine();
+                string[] line1Values = line.Split(' ');
+                levelWidthInTiles = Convert.ToInt32(line1Values[0]);
+                levelHeightInTiles = Convert.ToInt32(line1Values[1]);
 
-                    textboxLevelWidth.Text = levelWidthInTiles.ToString();
-                    textboxLevelHeight.Text = levelHeightInTiles.ToString();
+                textboxLevelWidth.Text = levelWidthInTiles.ToString();
+                textboxLevelHeight.Text = levelHeightInTiles.ToString();
 
-                    // Line 2
-                    line = sr.ReadLine();
-                    Console.WriteLine(line);
+                // Line 2
+                line = sr.ReadLine();
+                Console.WriteLine(line);
 
-                    setImageSource(line);
-                    createTables();
+                setImageSource(line);
+                createTables();
 
-                    int count = 0;
+                int count = 0;
 
-                    while ((line = sr.ReadLine()) != null) {
-                        string[] splitLine = line.Split(' ');
+                while ((line = sr.ReadLine()) != null) {
+                    string[] splitLine = line.Split(' ');
 
-                        if (splitLine[0].StartsWith("-")) {
-                            int skipValue = int.Parse(splitLine[0].Split('-').Last());
-                            count += skipValue;
+                    if (splitLine[0].StartsWith("-")) {
+                        int skipValue = int.Parse(splitLine[0].Split('-').Last());
+                        count += skipValue;
+                        continue;
+                    }
+
+                    List<Button> buttonsAtLocation = new List<Button>(numLayers);
+                    for (int i = 0; i < numLayers; i++) {
+                        buttonsAtLocation.Add(gameboardButtons[i][count]);
+                    }
+
+                    List<Tile> tilesAtLocation = new List<Tile>(numLayers);
+                    const int tileCoordFirstIndex = 10;
+                    int tileCoordLastIndex = tileCoordFirstIndex - 1 + numLayers * 2;
+                    for (int i = tileCoordFirstIndex; i <= tileCoordLastIndex; i++) {
+                        if (i >= splitLine.Length)
+                            break;
+
+                        if (splitLine[i] == "-1") {
+                            tileCoordLastIndex--;
                             continue;
                         }
 
-                        Button button = (Button)FindName("levelTile" + count);
-
-                        UnitEnum unit = UnitEnum.None;
-                        ItemEnum item = ItemEnum.None;
-
-                        if (splitLine.Length >= 13) {
-                            unit = (UnitEnum)Enum.Parse(typeof(UnitEnum), splitLine[11]);
-                            item = (ItemEnum)Enum.Parse(typeof(ItemEnum), splitLine[12]);
+                        if (i + 1 >= splitLine.Length) {
+                            Console.WriteLine("Looking past splitLine's length for the y-coord of a tile. This shouldn't happen.");
+                            break;
                         }
 
-                        // If has unit or item, indicate this via string in the button
-                        if (unit != UnitEnum.None) {
-                            button.Content = unit.ToString();
-
-                            // If moving platform, set up that object as well
-                            if (unit == UnitEnum.MovingPlatform) {
-                                MovingPlatform platform = GetOrCreatePlatform(count);
-
-                                // Read in destinations from the last expected property to the end of the line
-                                for (int i = 13; i < splitLine.Length; i += 2)
-                                    platform.tileDests.Add(new Tuple<int, int>(int.Parse(splitLine[i]), int.Parse(splitLine[i + 1])));
-
-                                for (int i = 0; i < platform.tileDests.Count; i++) {
-                                    Button destButton = (Button)FindName("levelTile" + GetButtonIndexFromCoordinates(platform.tileDests[i]));
-                                    destButton.Content = "D" + (i + 1);
-                                }
-
-                                platforms.Add(platform);
-                            }
-                        }
-                        if (item != ItemEnum.None) {
-                            button.Content = item.ToString();
-                        }
-
-                        // Set location properties
-                        LocationData location = locations[count];
-                        if (location != null) {
-                            location.unit = unit;
-                            location.item = item;
-                        }
-
-                        // Find matching source tile
-                        Tile srcTile = srcTiles.SingleOrDefault(t => t.x * tileWidth == int.Parse(splitLine[0]) && t.y * tileHeight == int.Parse(splitLine[1]));
-                        if (srcTile != null) {
-                            int layer = int.Parse(splitLine[10].ToString());
-
-                            button.Background = new ImageBrush(srcTile.image.Source);
-
-                            srcTile.leftHeight = int.Parse(splitLine[2]);
-                            srcTile.rightHeight = int.Parse(splitLine[3]);
-                            srcTile.topCollision = splitLine[4].ToString() == "1" ? true : false;
-                            srcTile.rightCollision = splitLine[5].ToString() == "1" ? true : false;
-                            srcTile.bottomCollision = splitLine[6].ToString() == "1" ? true : false;
-                            srcTile.leftCollision = splitLine[7].ToString() == "1" ? true : false;
-                            srcTile.isEdge = splitLine[8].ToString() == "1" ? true : false;
-                            srcTile.layer = layer;
-                            srcTile.notes = sr2.ReadLine();
-
-                            // Mutex properties will default to false, so only need to think about setting them to true
-                            string mutexProperty = splitLine[9].ToString();
-                            if (mutexProperty == "1")
-                                srcTile.isPole = true;
-                            else if (mutexProperty == "2")
-                                srcTile.isPoleEdge = true;
-
-                            placedTiles[layer][count] = srcTile;
-                        }
-
-                        count++;
+                        tilesAtLocation.Add(srcTiles.SingleOrDefault(t => t.x * tileWidth == int.Parse(splitLine[i]) && t.y * tileHeight == int.Parse(splitLine[i + 1])));
+                        i++;
                     }
+
+                    UnitEnum unit = UnitEnum.None;
+                    ItemEnum item = ItemEnum.None;
+
+                    unit = (UnitEnum)Enum.Parse(typeof(UnitEnum), splitLine[11]);
+                    item = (ItemEnum)Enum.Parse(typeof(ItemEnum), splitLine[12]);
+
+                    // If has unit or item, indicate this via string in the button
+                    // For now, let's assume that the best button to indicate this in is in the foremost layer
+                    if (unit != UnitEnum.None) {
+                        buttonsAtLocation.Last().Content = unit.ToString();
+
+                        int numNullsAtLocation = numLayers - tilesAtLocation.Count(tile => tile != null);
+                        int numNotNullsAtLocation = numLayers - numNullsAtLocation;
+
+                        // If moving platform, set up that object as well
+                        if (unit == UnitEnum.MovingPlatform) {
+                            int platformDestFirstIndex = tileCoordFirstIndex + numNotNullsAtLocation * 2 + numNullsAtLocation; 
+                            MovingPlatform platform = GetOrCreatePlatform(count);
+
+                            // Read in destinations from the last expected property to the end of the line
+                            for (int i = platformDestFirstIndex; i < splitLine.Length; i += 2)
+                                platform.tileDests.Add(new Tuple<int, int>(int.Parse(splitLine[i]), int.Parse(splitLine[i + 1])));
+
+                            for (int i = 0; i < platform.tileDests.Count; i++) {
+                                Button destButton = (Button)FindName("levelTile" + GetButtonIndexFromCoordinates(platform.tileDests[i]));
+                                destButton.Content = "D" + (i + 1);
+                            }
+
+                            platforms.Add(platform);
+                        }
+                    }
+                    if (item != ItemEnum.None) {
+                        buttonsAtLocation.Last().Content = item.ToString();
+                    }
+
+                    // Set location properties
+                    LocationData location = locations[count];
+                    if (location != null) {
+                        location.unit = unit;
+                        location.item = item;
+                    }
+
+                    // Set button images for each tile at location
+                    for (int i = 0; i < tilesAtLocation.Count; i++) {
+                        if (tilesAtLocation[i] != null)
+                            buttonsAtLocation[i].Background = new ImageBrush(tilesAtLocation[i].image.Source);
+                    }
+
+                    // Set foremost-layer tile's properties
+                    Tile srcTile = tilesAtLocation.Where(t => t != null).Last();
+                    int layer = tilesAtLocation.IndexOf(srcTile);
+
+                    srcTile.leftHeight = int.Parse(splitLine[2]);
+                    srcTile.rightHeight = int.Parse(splitLine[3]);
+                    srcTile.topCollision = splitLine[4].ToString() == "1" ? true : false;
+                    srcTile.rightCollision = splitLine[5].ToString() == "1" ? true : false;
+                    srcTile.bottomCollision = splitLine[6].ToString() == "1" ? true : false;
+                    srcTile.leftCollision = splitLine[7].ToString() == "1" ? true : false;
+                    srcTile.isEdge = splitLine[8].ToString() == "1" ? true : false;
+
+                    // Mutex properties will default to false, so only need to think about setting them to true
+                    string mutexProperty = splitLine[9].ToString();
+                    if (mutexProperty == "1")
+                        srcTile.isPole = true;
+                    else if (mutexProperty == "2")
+                        srcTile.isPoleEdge = true;
+
+                    placedTiles[layer][count] = srcTile;
+
+                    count++;
                 }
             }
 
@@ -704,36 +728,6 @@ namespace Keen5LevelEditor {
                 case Key.NumPad4:
                     ToggleLeftCollision();
                     break;
-                case Key.D0:
-                    SetLayerLabel("0");
-                    break;
-                case Key.D1:
-                    SetLayerLabel("1");
-                    break;
-                case Key.D2:
-                    SetLayerLabel("2");
-                    break;
-                case Key.D3:
-                    SetLayerLabel("3");
-                    break;
-                case Key.D4:
-                    SetLayerLabel("4");
-                    break;
-                case Key.D5:
-                    SetLayerLabel("5");
-                    break;
-                case Key.D6:
-                    SetLayerLabel("6");
-                    break;
-                case Key.D7:
-                    SetLayerLabel("7");
-                    break;
-                case Key.D8:
-                    SetLayerLabel("8");
-                    break;
-                case Key.D9:
-                    SetLayerLabel("9");
-                    break;
             }
         }
 
@@ -775,11 +769,6 @@ namespace Keen5LevelEditor {
 
             if (int.TryParse(textBoxRightHeight.Text, out height))
                 selectedTile.rightHeight = height;
-        }
-
-        private void SetLayerLabel(string key) {
-            selectedTile.layer = int.Parse(key);
-            labelLayer.Content = key;
         }
 
         private void buttonIsEdge_Click(object sender, RoutedEventArgs e) {

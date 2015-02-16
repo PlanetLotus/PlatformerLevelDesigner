@@ -46,7 +46,6 @@
                 <ToggleButton Name="buttonIsPole" Click="mutexPropertyButton_Click">Is Pole</ToggleButton>
                 <ToggleButton Name="buttonIsPoleEdge" Click="mutexPropertyButton_Click">Is Pole Edge</ToggleButton>
                 <ToggleButton Name="buttonIsEdge" Click="buttonIsEdge_Click">Is Edge</ToggleButton>
-                <Label Name="labelLayer" HorizontalAlignment="Center">0</Label>
                 <RadioButton GroupName="UnitSelector" Name="noUnit" IsChecked="True" Margin="5,5,5,0" Click="unitPlacer_Click">None</RadioButton>
                 <RadioButton GroupName="UnitSelector" Name="keen" Margin="5,0" Click="unitPlacer_Click">Keen</RadioButton>
                 <RadioButton GroupName="UnitSelector" Name="sparky" Margin="5,0" Click="unitPlacer_Click">Sparky</RadioButton>
