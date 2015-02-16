@@ -403,12 +403,17 @@ namespace Keen5LevelEditor {
             notesSavePath += relativeNotesPath;
 
             using (StreamWriter sw = new StreamWriter(savePath)) {
-                // File format:
-                // First line is # tiles wide, # tiles tall, # tiles (non-blank) per layer
-                // Second line is src file name
-                // After that, one line per tile
-                // Each line is src x coord, src y coord, leftHeight, rightHeight, then 1 or 0 for collision top, right, bottom, left 
-                // -1 indicates blank tile
+                /* File format:
+                 * First line is # tiles wide, # tiles tall, # tiles (non-blank) per layer
+                 * Second line is src file name
+                 * After that, one line per tile
+                 * Each line is leftHeight, rightHeight, then 1 or 0 for collision top, right, bottom, left, isEdge. 
+                 *  Then mutexProperty, unit, item. 
+                 *  Then for each layer, tile's xSrc and ySrc.
+                 *  Then, if platform, for each platform destination, tile's xSrc and ySrc
+                 * -x indicates x blank locations follow
+                 * -1 inline indicates null tile on that layer
+                 */
                 string firstLine = levelWidthInTiles + " " + levelHeightInTiles + " ";
                 for (int i = 0; i < numLayers; i++) {
                     firstLine += placedTiles[i].Count(t => t != null);
@@ -585,8 +590,8 @@ namespace Keen5LevelEditor {
                     UnitEnum unit = UnitEnum.None;
                     ItemEnum item = ItemEnum.None;
 
-                    unit = (UnitEnum)Enum.Parse(typeof(UnitEnum), splitLine[11]);
-                    item = (ItemEnum)Enum.Parse(typeof(ItemEnum), splitLine[12]);
+                    unit = (UnitEnum)Enum.Parse(typeof(UnitEnum), splitLine[8]);
+                    item = (ItemEnum)Enum.Parse(typeof(ItemEnum), splitLine[9]);
 
                     // If has unit or item, indicate this via string in the button
                     // For now, let's assume that the best button to indicate this in is in the foremost layer
