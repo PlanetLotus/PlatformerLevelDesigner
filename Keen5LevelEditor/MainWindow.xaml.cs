@@ -404,107 +404,114 @@ namespace Keen5LevelEditor {
             notesSavePath += relativeNotesPath;
 
             using (StreamWriter sw = new StreamWriter(savePath)) {
-                using (StreamWriter sw2 = new StreamWriter(notesSavePath)) {
-                    // File format:
-                    // First line is # tiles wide, # tiles tall, # tiles (non-blank) per layer
-                    // Second line is src file name
-                    // After that, one line per tile
-                    // Each line is src x coord, src y coord, leftHeight, rightHeight, then 1 or 0 for collision top, right, bottom, left 
-                    // -1 indicates blank tile
-                    string firstLine = levelWidthInTiles + " " + levelHeightInTiles + " ";
-                    for (int i = 0; i < numLayers; i++) {
-                        firstLine += placedTiles[i].Count(t => t != null);
-                        if (i != numLayers - 1)
-                            firstLine += " ";
+                // File format:
+                // First line is # tiles wide, # tiles tall, # tiles (non-blank) per layer
+                // Second line is src file name
+                // After that, one line per tile
+                // Each line is src x coord, src y coord, leftHeight, rightHeight, then 1 or 0 for collision top, right, bottom, left 
+                // -1 indicates blank tile
+                string firstLine = levelWidthInTiles + " " + levelHeightInTiles + " ";
+                for (int i = 0; i < numLayers; i++) {
+                    firstLine += placedTiles[i].Count(t => t != null);
+                    if (i != numLayers - 1)
+                        firstLine += " ";
+                }
+
+                sw.WriteLine(firstLine);
+                sw.WriteLine(loadImageSrcLabel.Content);
+
+                for (int i = 0; i < locations.Count; i++) {
+                    int nullCount = 0;
+                    while (i < locations.Count && placedTiles.All(layer => layer[i] == null)) {
+                        nullCount++;
+                        i++;
                     }
 
-                    sw.WriteLine(firstLine);
-                    sw.WriteLine(loadImageSrcLabel.Content);
+                    if (nullCount != 0) {
+                        sw.WriteLine("-" + nullCount);
+                        nullCount = 0;
 
-                    for (int i = 0; i < locations.Count; i++) {
-                        int nullCount = 0;
-                        while (i < locations.Count && placedTiles.All(layer => layer[i] == null)) {
-                            nullCount++;
-                            i++;
+                        if (i >= locations.Count) break;
+                    }
+
+                    List<Tile> tilesAtLocation = new List<Tile>(numLayers);
+
+                    foreach (var layer in placedTiles) {
+                        if (layer[i] != null)
+                            tilesAtLocation.Add(layer[i]);
+                    }
+
+                    int leftHeight = tilesAtLocation.Any(tile => tile.leftHeight != 0)
+                        ? tilesAtLocation.First(tile => tile.leftHeight != 0).leftHeight
+                        : 0;
+
+                    int rightHeight = tilesAtLocation.Any(tile => tile.rightHeight != 0)
+                        ? tilesAtLocation.First(tile => tile.rightHeight != 0).rightHeight
+                        : 0;
+
+                    int topCollision = tilesAtLocation.Any(tile => tile.topCollision) ? 1 : 0;
+                    int rightCollision = tilesAtLocation.Any(tile => tile.rightCollision) ? 1 : 0;
+                    int bottomCollision = tilesAtLocation.Any(tile => tile.bottomCollision) ? 1 : 0;
+                    int leftCollision = tilesAtLocation.Any(tile => tile.leftCollision) ? 1 : 0;
+                    int isEdge = tilesAtLocation.Any(tile => tile.isEdge) ? 1 : 0;
+
+                    int mutexProperty = 0;
+                    if (tilesAtLocation.Any(tile => tile.isPole))
+                        mutexProperty = 1;
+                    else if (tilesAtLocation.Any(tile => tile.isPoleEdge))
+                        mutexProperty = 2;
+
+                    int unit = (int)locations[i].unit;
+                    int item = (int)locations[i].item;
+
+                    List<string> tileSourceCoordsList = new List<string>();
+
+                    for (int j = 0; j < placedTiles.Count; j++) {
+                        if (placedTiles[j][i] == null) {
+                            tileSourceCoordsList.Add("-1");
+                            continue;
                         }
 
-                        if (nullCount != 0) {
-                            sw.WriteLine("-" + nullCount);
-                            nullCount = 0;
+                        tileSourceCoordsList.Add(placedTiles[j][i].x.ToString());
+                        tileSourceCoordsList.Add(placedTiles[j][i].y.ToString());
+                    }
 
-                            if (i >= locations.Count) break;
-                        }
+                    string tileSourceCoords = string.Join(" ", tileSourceCoordsList);
 
-                        List<Tile> tilesAtLocation = new List<Tile>(numLayers);
+                    string line =
+                        leftHeight + " " +
+                        rightHeight + " " +
+                        topCollision + " " +
+                        rightCollision + " " +
+                        bottomCollision + " " +
+                        leftCollision + " " +
+                        isEdge + " " +
+                        mutexProperty + " " +
+                        unit + " " +
+                        item;
 
-                        foreach (var layer in placedTiles) {
-                            if (layer[i] != null)
-                                tilesAtLocation.Add(layer[i]);
-                        }
+                    if (tileSourceCoordsList.Any())
+                        line += " " + tileSourceCoords;
 
-                        int leftHeight = tilesAtLocation.Any(tile => tile.leftHeight != 0)
-                            ? tilesAtLocation.First(tile => tile.leftHeight != 0).leftHeight
-                            : 0;
+                    if (locations[i].unit == UnitEnum.MovingPlatform) {
+                        MovingPlatform platform = platforms.Single(p => p.buttonIndex == i);
 
-                        int rightHeight = tilesAtLocation.Any(tile => tile.rightHeight != 0)
-                            ? tilesAtLocation.First(tile => tile.rightHeight != 0).rightHeight
-                            : 0;
+                        foreach (Tuple<int, int> dest in platform.tileDests)
+                            line += " " + dest.Item1 + " " + dest.Item2;
+                    }
 
-                        int topCollision = tilesAtLocation.Any(tile => tile.topCollision) ? 1 : 0;
-                        int rightCollision = tilesAtLocation.Any(tile => tile.rightCollision) ? 1 : 0;
-                        int bottomCollision = tilesAtLocation.Any(tile => tile.bottomCollision) ? 1 : 0;
-                        int leftCollision = tilesAtLocation.Any(tile => tile.leftCollision) ? 1 : 0;
-                        int isEdge = tilesAtLocation.Any(tile => tile.isEdge) ? 1 : 0;
+                    sw.WriteLine(line);
+                }
+            }
 
-                        int mutexProperty = 0;
-                        if (tilesAtLocation.Any(tile => tile.isPole))
-                            mutexProperty = 1;
-                        else if (tilesAtLocation.Any(tile => tile.isPoleEdge))
-                            mutexProperty = 2;
-
-                        int unit = (int)locations[i].unit;
-                        int item = (int)locations[i].item;
-
-                        List<string> tileSourceCoordsList = new List<string>();
-
-                        for (int j = 0; j < placedTiles.Count; j++) {
-                            if (placedTiles[j][i] == null) {
-                                tileSourceCoordsList.Add("-1");
-                                continue;
-                            }
-
-                            tileSourceCoordsList.Add(placedTiles[j][i].x.ToString());
-                            tileSourceCoordsList.Add(placedTiles[j][i].y.ToString());
-                        }
-
-                        string tileSourceCoords = string.Join(" ", tileSourceCoordsList);
-
-                        string line =
-                            leftHeight + " " +
-                            rightHeight + " " +
-                            topCollision + " " +
-                            rightCollision + " " +
-                            bottomCollision + " " +
-                            leftCollision + " " +
-                            isEdge + " " +
-                            mutexProperty + " " +
-                            unit + " " +
-                            item;
-
-                        if (tileSourceCoordsList.Any())
-                            line += " " + tileSourceCoords;
-
-                        if (locations[i].unit == UnitEnum.MovingPlatform) {
-                            MovingPlatform platform = platforms.Single(p => p.buttonIndex == i);
-
-                            foreach (Tuple<int, int> dest in platform.tileDests)
-                                line += " " + dest.Item1 + " " + dest.Item2;
-                        }
-
-                        sw.WriteLine(line);
+            using (StreamWriter sw = new StreamWriter(notesSavePath)) {
+                foreach (List<Tile> layer in placedTiles) {
+                    foreach (Tile tile in layer.Where(tile => tile != null)) {
+                        sw.WriteLine(tile.notes);
                     }
                 }
             }
+
             Console.WriteLine("File saved.");
         }
 
