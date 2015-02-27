@@ -15,6 +15,7 @@ namespace Keen5LevelEditor {
         public bool leftCollision { get; set; }
         public bool isPole { get; set; }
         public bool isPoleEdge { get; set; }
+        public bool isDeadly { get; set; }
         public bool isEdge { get; set; }
         public string notes { get; set; }
 

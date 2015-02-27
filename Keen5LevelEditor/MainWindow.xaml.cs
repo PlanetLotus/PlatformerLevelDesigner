@@ -464,6 +464,8 @@ namespace Keen5LevelEditor {
                         mutexProperty = 1;
                     else if (tilesAtLocation.Any(tile => tile.isPoleEdge))
                         mutexProperty = 2;
+                    else if (tilesAtLocation.Any(tile => tile.isDeadly))
+                        mutexProperty = 3;
 
                     int unit = (int)locations[i].unit;
                     int item = (int)locations[i].item;
@@ -670,6 +672,8 @@ namespace Keen5LevelEditor {
                             lastTile.isPole = true;
                         else if (mutexProperty == "2")
                             lastTile.isPoleEdge = true;
+                        else if (mutexProperty == "3")
+                            lastTile.isDeadly = true;
                     }
 
                     count++;
@@ -714,7 +718,9 @@ namespace Keen5LevelEditor {
                     // Reset other mutex properties
                     if (selectedTile.isPole) {
                         selectedTile.isPoleEdge = false;
+                        selectedTile.isDeadly = false;
                         buttonIsPoleEdge.IsChecked = false;
+                        buttonIsDeadly.IsChecked = false;
                     }
 
                     break;
@@ -725,7 +731,22 @@ namespace Keen5LevelEditor {
                     // Reset other mutex properties
                     if (selectedTile.isPoleEdge) {
                         selectedTile.isPole = false;
+                        selectedTile.isDeadly = false;
                         buttonIsPole.IsChecked = false;
+                        buttonIsDeadly.IsChecked = false;
+                    }
+
+                    break;
+                case "buttonIsDeadly":
+                    selectedTile.isDeadly = selectedTile.isDeadly == true ? false : true;
+                    buttonIsDeadly.IsChecked = selectedTile.isDeadly == true ? true : false;
+
+                    // Reset other mutex properties
+                    if (selectedTile.isDeadly) {
+                        selectedTile.isPole = false;
+                        selectedTile.isPoleEdge = false;
+                        buttonIsPole.IsChecked = false;
+                        buttonIsPoleEdge.IsChecked = false;
                     }
 
                     break;

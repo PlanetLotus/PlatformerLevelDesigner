@@ -45,6 +45,7 @@
                 <TextBox Name="textBoxRightHeight" KeyUp="TileHeight_KeyUp" ToolTip="Right Height (Sloped Tiles Only)" Text="0" Margin="0,0,0,10" />
                 <ToggleButton Name="buttonIsPole" Click="mutexPropertyButton_Click">Is Pole</ToggleButton>
                 <ToggleButton Name="buttonIsPoleEdge" Click="mutexPropertyButton_Click">Is Pole Edge</ToggleButton>
+                <ToggleButton Name="buttonIsDeadly" Click="mutexPropertyButton_Click">Is Deadly</ToggleButton>
                 <ToggleButton Name="buttonIsEdge" Click="buttonIsEdge_Click">Is Edge</ToggleButton>
                 <RadioButton GroupName="UnitSelector" Name="noUnit" IsChecked="True" Margin="5,5,5,0" Click="unitPlacer_Click">None</RadioButton>
                 <RadioButton GroupName="UnitSelector" Name="keen" Margin="5,0" Click="unitPlacer_Click">Keen</RadioButton>
