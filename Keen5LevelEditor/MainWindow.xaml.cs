@@ -568,6 +568,10 @@ namespace Keen5LevelEditor {
                     }
 
                     List<Tile> tilesAtLocation = new List<Tile>(numLayers);
+                    for (int i = 0; i < numLayers; i++)
+                        tilesAtLocation.Add(null);
+
+                    int currentLayer = 0;
                     const int tileCoordFirstIndex = 10;
                     int tileCoordLastIndex = tileCoordFirstIndex - 1 + numLayers * 2;
                     for (int i = tileCoordFirstIndex; i <= tileCoordLastIndex; i++) {
@@ -576,6 +580,7 @@ namespace Keen5LevelEditor {
 
                         if (splitLine[i] == "-1") {
                             tileCoordLastIndex--;
+                            currentLayer++;
                             continue;
                         }
 
@@ -584,7 +589,8 @@ namespace Keen5LevelEditor {
                             break;
                         }
 
-                        tilesAtLocation.Add(srcTiles.SingleOrDefault(t => t.x * tileWidth == int.Parse(splitLine[i]) && t.y * tileHeight == int.Parse(splitLine[i + 1])));
+                        tilesAtLocation[currentLayer] = srcTiles.SingleOrDefault(t => t.x * tileWidth == int.Parse(splitLine[i]) && t.y * tileHeight == int.Parse(splitLine[i + 1]));
+                        currentLayer++;
                         i++;
                     }
 
