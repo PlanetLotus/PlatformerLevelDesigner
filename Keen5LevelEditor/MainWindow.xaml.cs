@@ -215,7 +215,8 @@ namespace Keen5LevelEditor {
             keen.IsChecked = selectedLocation.unit == UnitEnum.Keen;
             sparky.IsChecked = selectedLocation.unit == UnitEnum.Sparky;
             ampton.IsChecked = selectedLocation.unit == UnitEnum.Ampton;
-            platform.IsChecked = selectedLocation.unit == UnitEnum.MovingPlatform;
+            platformRed.IsChecked = selectedLocation.unit == UnitEnum.MovingPlatformRed;
+            platformPink.IsChecked = selectedLocation.unit == UnitEnum.MovingPlatformPink;
             laser.IsChecked = selectedLocation.unit == UnitEnum.Laser;
             noItem.IsChecked = selectedLocation.item == ItemEnum.None;
             ammo.IsChecked = selectedLocation.item == ItemEnum.Ammo;
@@ -230,7 +231,7 @@ namespace Keen5LevelEditor {
             }
 
             // If a platform is at this location, allow destination placements
-            if (radioSelectTiles.IsChecked.HasValue && radioSelectTiles.IsChecked.Value && selectedLocation.unit == UnitEnum.MovingPlatform) {
+            if (radioSelectTiles.IsChecked.HasValue && radioSelectTiles.IsChecked.Value && (selectedLocation.unit == UnitEnum.MovingPlatformRed || selectedLocation.unit == UnitEnum.MovingPlatformPink)) {
                 radioPlacePlatformDest.Visibility = Visibility.Visible;
                 selectedPlatform = platforms.SingleOrDefault(p => p.buttonIndex == selectedGameboardButtonIndex);
             }
@@ -265,7 +266,6 @@ namespace Keen5LevelEditor {
                 buttonIndex = buttonIndex,
                 startX = platformCoord.Item1,
                 startY = platformCoord.Item2,
-                color = MovingPlatformColorEnum.Pink,
                 tileDests = new List<Tuple<int, int>>()
             };
         }
@@ -305,10 +305,12 @@ namespace Keen5LevelEditor {
 
             RadioButton unitSelector = (RadioButton)sender;
 
+            string oldUnitName = selectedLocation.unit.ToString();
             selectedLocation.unit = (UnitEnum)Enum.Parse(typeof(UnitEnum), unitSelector.Content.ToString());
 
             // If switching from Moving Platform to anything else, remove the platform object from the list
-            if (selectedGameboardButton.Content.ToString() == UnitEnum.MovingPlatform.ToString() && unitSelector.Content.ToString() != UnitEnum.MovingPlatform.ToString()) {
+            if ((selectedGameboardButton.Content.ToString() == UnitEnum.MovingPlatformRed.ToString() || selectedGameboardButton.Content.ToString() == UnitEnum.MovingPlatformPink.ToString()) &&
+                selectedLocation.unit.ToString() != oldUnitName) {
                 selectedGameboardButtonIndex = GetGameboardButtonIndex(selectedGameboardButton);
                 MovingPlatform platform = platforms.SingleOrDefault(p => p.buttonIndex == selectedGameboardButtonIndex);
                 platforms.Remove(platform);
@@ -318,7 +320,7 @@ namespace Keen5LevelEditor {
                 selectedGameboardButton.BorderBrush = Brushes.Green;
                 selectedGameboardButton.Content = unitSelector.Content;
 
-                if (unitSelector.Content.ToString() == UnitEnum.MovingPlatform.ToString()) {
+                if (unitSelector.Content.ToString() == UnitEnum.MovingPlatformRed.ToString() || unitSelector.Content.ToString() == UnitEnum.MovingPlatformPink.ToString()) {
                     // Create platform if it doesn't exist here already
                     selectedPlatform = GetOrCreatePlatform(GetGameboardButtonIndex(selectedGameboardButton));
                     platforms.Add(selectedPlatform);
@@ -500,7 +502,7 @@ namespace Keen5LevelEditor {
                     if (tileSourceCoordsList.Any())
                         line += " " + tileSourceCoords;
 
-                    if (locations[i].unit == UnitEnum.MovingPlatform) {
+                    if (locations[i].unit == UnitEnum.MovingPlatformRed || locations[i].unit == UnitEnum.MovingPlatformPink) {
                         MovingPlatform platform = platforms.Single(p => p.buttonIndex == i);
 
                         foreach (Tuple<int, int> dest in platform.tileDests)
@@ -613,7 +615,7 @@ namespace Keen5LevelEditor {
                         int numNotNullsAtLocation = numLayers - numNullsAtLocation;
 
                         // If moving platform, set up that object as well
-                        if (unit == UnitEnum.MovingPlatform) {
+                        if (unit == UnitEnum.MovingPlatformRed || unit == UnitEnum.MovingPlatformPink) {
                             int platformDestFirstIndex = tileCoordFirstIndex + numNotNullsAtLocation * 2 + numNullsAtLocation; 
                             MovingPlatform platform = GetOrCreatePlatform(count);
 

@@ -8,7 +8,6 @@ namespace Keen5LevelEditor {
         public int buttonIndex { get; set; }
         public int startX { get; set; }
         public int startY { get; set; }
-        public MovingPlatformColorEnum color { get; set; }
         public List<Tuple<int, int>> tileDests { get; set; }
     }
 }

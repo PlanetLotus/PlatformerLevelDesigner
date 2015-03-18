@@ -4,7 +4,8 @@
         Keen,
         Sparky,
         Ampton,
-        MovingPlatform,
+        MovingPlatformRed,
+        MovingPlatformPink,
         Laser
     }
 }

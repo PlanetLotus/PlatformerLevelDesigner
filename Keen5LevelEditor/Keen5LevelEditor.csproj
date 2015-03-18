@@ -61,7 +61,6 @@
     <Compile Include="ItemEnum.cs" />
     <Compile Include="LocationData.cs" />
     <Compile Include="MovingPlatform.cs" />
-    <Compile Include="MovingPlatformColorEnum.cs" />
     <Compile Include="UnitEnum.cs" />
     <Compile Include="Tile.cs" />
     <Page Include="MainWindow.xaml">
