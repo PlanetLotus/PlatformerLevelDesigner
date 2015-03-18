@@ -216,6 +216,7 @@ namespace Keen5LevelEditor {
             sparky.IsChecked = selectedLocation.unit == UnitEnum.Sparky;
             ampton.IsChecked = selectedLocation.unit == UnitEnum.Ampton;
             platform.IsChecked = selectedLocation.unit == UnitEnum.MovingPlatform;
+            laser.IsChecked = selectedLocation.unit == UnitEnum.Laser;
             noItem.IsChecked = selectedLocation.item == ItemEnum.None;
             ammo.IsChecked = selectedLocation.item == ItemEnum.Ammo;
             gum.IsChecked = selectedLocation.item == ItemEnum.Gum;

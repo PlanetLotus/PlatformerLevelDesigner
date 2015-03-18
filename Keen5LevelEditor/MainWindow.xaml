@@ -52,6 +52,7 @@
                 <RadioButton GroupName="UnitSelector" Name="sparky" Margin="5,0" Click="unitPlacer_Click">Sparky</RadioButton>
                 <RadioButton GroupName="UnitSelector" Name="ampton" Margin="5,0" Click="unitPlacer_Click">Ampton</RadioButton>
                 <RadioButton GroupName="UnitSelector" Name="platform" Margin="5,0" Click="unitPlacer_Click">MovingPlatform</RadioButton>
+                <RadioButton GroupName="UnitSelector" Name="laser" Margin="5,0" Click="unitPlacer_Click">Laser</RadioButton>
                 <RadioButton GroupName="ItemSelector" Name="noItem" IsChecked="True" Margin="5,8,5,0" Click="itemPlacer_Click">None</RadioButton>
                 <RadioButton GroupName="ItemSelector" Name="ammo" Margin="5,0" Click="itemPlacer_Click">Ammo</RadioButton>
                 <RadioButton GroupName="ItemSelector" Name="gum" Margin="5,0" Click="itemPlacer_Click">Gum</RadioButton>
